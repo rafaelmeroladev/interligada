@@ -50,4 +50,14 @@ class RequestsController extends Controller {
         $request->restore(); // Restaurar um request excluído
         return redirect()->route('requests.index');
     }
+
+    public function activeRequestsSystem(Request $request) {
+        // Lógica para ativar o sistema de pedidos no seu aplicativo.
+        // Isso pode incluir a atualização de um campo na tabela de configurações.
+
+        // Após ativar o sistema, obtenha o status atual do sistema de pedidos
+        $status = 'activated';
+        $newStatus = $status === 'ativo' ? 'inativo' : 'ativo';
+        return response()->json(['message' => 'Sistema de pedidos ativado com sucesso', 'status' => $status]);
+    }
 }
