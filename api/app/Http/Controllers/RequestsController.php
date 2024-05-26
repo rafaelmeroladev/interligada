@@ -1,13 +1,16 @@
-<?php 
+<?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\RequestProgram;
 use App\Models\Requests;
 
 class RequestsController extends Controller {
     public function index() {
         $requests = Requests::withTrashed()->get();
-        return view('requests.index', compact('requests'));
+        return response()->json($requests);
     }
 
     public function create() {
@@ -15,10 +18,20 @@ class RequestsController extends Controller {
     }
 
     public function store(Request $request) {
+        $requestProgram = RequestProgram::where('status', 'online')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+        if (!$requestProgram) {
+            return response()->json(['error' => 'No active request program found'], 400);
+        }
+
         // Lógica para criar um novo request
         $data = $request->all();
-        Pedido::create($data);
-        return redirect()->route('requests.index');
+        $data['request_program_id'] = $requestProgram->id;
+        Requests::create($data);
+
+        return response()->json(['message' => 'Request created successfully']);
     }
 
     public function show($id) {
@@ -34,30 +47,62 @@ class RequestsController extends Controller {
     public function update(Request $request, $id) {
         // Lógica para atualizar um request
         $data = $request->all();
-        $request = Requests::find($id);
-        $request->update($data);
-        return redirect()->route('requests.index');
+        $requestInstance = Requests::find($id);
+        $requestInstance->update($data);
+        return response()->json(['message' => 'Request updated successfully']);
     }
 
     public function destroy($id) {
-        $request = Requests::find($id);
-        $request->delete(); // Soft Delete
-        return redirect()->route('requests.index');
+        $requestInstance = Requests::find($id);
+        $requestInstance->delete(); // Soft Delete
+        return response()->json(['message' => 'Request deleted successfully']);
     }
 
     public function restore($id) {
         $request = Requests::withTrashed()->find($id);
         $request->restore(); // Restaurar um request excluído
-        return redirect()->route('requests.index');
+        return response()->json(['message' => 'Request restored successfully']);
     }
 
     public function activeRequestsSystem(Request $request) {
-        // Lógica para ativar o sistema de pedidos no seu aplicativo.
-        // Isso pode incluir a atualização de um campo na tabela de configurações.
+        $user = Auth::user();
+        $status = $request->input('status');
 
-        // Após ativar o sistema, obtenha o status atual do sistema de pedidos
-        $status = 'activated';
-        $newStatus = $status === 'ativo' ? 'inativo' : 'ativo';
-        return response()->json(['message' => 'Sistema de pedidos ativado com sucesso', 'status' => $status]);
+        // Verificar se o locutor já tem um sistema de pedidos ativo
+        $existingProgram = RequestProgram::where('user_id', $user->id)
+            ->where('status', 'online')
+            ->first();
+
+        if ($existingProgram) {
+            // Atualizar o status do sistema de pedidos existente
+            $existingProgram->status = $status;
+            $existingProgram->save();
+        } else {
+            // Criar um novo sistema de pedidos
+            RequestProgram::create([
+                'user_id' => $user->id,
+                'status' => $status,
+            ]);
+        }
+
+        return response()->json(['message' => 'Sistema de pedidos atualizado com sucesso', 'status' => $status]);
+    }
+
+    public function restoreRequestProgram($id) {
+        $program = RequestProgram::withTrashed()->find($id);
+        if ($program) {
+            $program->restore();
+            return response()->json(['message' => 'Programa de pedidos restaurado com sucesso']);
+        }
+        return response()->json(['message' => 'Programa de pedidos não encontrado'], 404);
+    }
+
+    public function searchProgram(){
+        $requestProgram = RequestProgram::where('status', 'online')->first();
+        if ($requestProgram){
+            return 'Online';
+        }else{
+            return 'Offline';
+        }
     }
 }

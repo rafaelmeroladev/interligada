@@ -13,10 +13,10 @@ class Requests extends Model
     protected $table = 'requests';
 
     protected $fillable = [
-        'speaker_id', 'type', 'email', 'phone', 'read', 'menssage'
+        'request_program_id', 'type', 'email', 'phone', 'read', 'message', 'name'
     ];
 
-    public function speaker() {
-        return $this->belongsTo(User::class, 'speaker_id');
+    public function requestProgram() {
+        return $this->belongsTo(RequestProgram::class);
     }
 }

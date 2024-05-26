@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
 
-class Users extends Authenticatable
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable,SoftDeletes;
 
@@ -58,15 +58,15 @@ class Users extends Authenticatable
     ];
 
     public function isAdmin() {
-        return $this->role === 'admin';
+        return $this->level === 'admin';
     }
 
     public function isManager() {
-        return $this->role === 'manager'; 
+        return $this->level === 'manager'; 
     }
 
     public function isSpeaker() {
-        return $this->role === 'speaker';
+        return $this->level === 'speaker';
     }
 
 }
