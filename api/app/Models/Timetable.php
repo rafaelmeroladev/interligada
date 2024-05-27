@@ -13,7 +13,7 @@ class Timetable extends Model
     protected $table = 'timetables';
 
     protected $fillable = [
-        'program_name','user_id', 'day_week', 'hour_start', 'hour_finish'
+        'program_name','user_id', 'day_week', 'hour_start', 'hour_finish', 'description', 'imagem'
     ];
 
     public function user() {

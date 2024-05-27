@@ -19,10 +19,10 @@ use App\Policies\GlobalAdminManagerSpeakerPolicy;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::get('timetables/day', [TimetableController::class, 'showDay']);
 Route::resource('news', NewsController::class)->only(['index', 'show']);
 Route::resource('timetables', TimetableController::class)->only(['index', 'show']);
-Route::get('timetables/day', [TimetableController::class, 'showDay']);
+
 Route::resource('pedidos', RequestsController::class);
 Route::resource('usuarios', UsersController::class);
 Route::post('login', [AuthController::class, 'login']);
