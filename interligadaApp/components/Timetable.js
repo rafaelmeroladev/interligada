@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import axios from 'axios';
-import { API_BASE_URL } from '@env';
+import { API_BASE_URL, API_BASE_IMAGE_URL } from '@env'; // Import API_BASE_IMAGE_URL
 import moment from 'moment';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const { width } = Dimensions.get('window');
-const itemWidth = width * 0.75;
+const  width  = Dimensions.get('window').width;
+const  height  = Dimensions.get('window').height;
+const itemWidth = width * 0.8;
 const itemSpacing = (width - itemWidth) / 2;
 
-const Timetable = () => {
+const Timetable = ({ resetKey }) => {
     const [timetables, setTimetables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
+    const [scrollIndex, setScrollIndex] = useState(0); // State to track the current index
     const flatListRef = useRef(null);
 
     useEffect(() => {
@@ -26,13 +29,13 @@ const Timetable = () => {
                 const now = moment();
                 const closestIndex = sortedTimetables.findIndex(item => moment(item.hour_start, 'HH:mm').isAfter(now));
                 const indexToScroll = closestIndex === -1 ? sortedTimetables.length - 1 : closestIndex;
-
                 // Scroll to the closest program
                 setTimeout(() => {
-                    if (flatListRef.current) {
+                    if (flatListRef.current && indexToScroll >= 0 && indexToScroll < sortedTimetables.length) {
                         flatListRef.current.scrollToIndex({ animated: true, index: indexToScroll, viewPosition: 0.5 });
                     }
                     setSelectedItem(sortedTimetables[indexToScroll]);
+                    setScrollIndex(indexToScroll); // Update the scroll index
                 }, 100); // Small delay to ensure FlatList is rendered
             } catch (error) {
                 setError('Erro ao carregar a programação. Por favor, tente novamente.');
@@ -41,7 +44,7 @@ const Timetable = () => {
         };
 
         fetchTimetables();
-    }, []);
+    }, [resetKey]);
 
     const getItemStyle = (hourStart, hourFinish) => {
         const now = moment();
@@ -57,35 +60,76 @@ const Timetable = () => {
         }
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => setSelectedItem(item)}>
-            <View style={styles.cardContainer}>
-                {item.imagem ? (
-                    <ImageBackground source={{ uri: `${API_BASE_URL}/storage/${item.imagem}` }} style={styles.backgroundImage} imageStyle={styles.backgroundImageStyle}>
-                        <View style={[styles.item, getItemStyle(item.hour_start, item.hour_finish)]}>
-                            <Text style={styles.programName}>{item.program_name}</Text>
-                            <Text style={styles.time}>{item.hour_start} - {item.hour_finish}</Text>
+    const handleNext = () => {
+        if (flatListRef.current && scrollIndex < timetables.length - 1) {
+            const newIndex = scrollIndex + 1;
+            flatListRef.current.scrollToIndex({
+                index: newIndex,
+                animated: true,
+                viewPosition: 0.5
+            });
+            setScrollIndex(newIndex);
+        }
+    };
+
+    const handlePrev = () => {
+        if (flatListRef.current && scrollIndex > 0) {
+            const newIndex = scrollIndex - 1;
+            flatListRef.current.scrollToIndex({
+                index: newIndex,
+                animated: true,
+                viewPosition: 0.5
+            });
+            setScrollIndex(newIndex);
+        }
+    };
+
+    const renderItem = ({ item }) => {
+        const imageUrl = item.imagem ? `${API_BASE_IMAGE_URL}/${item.imagem}` : null;
+
+        const toggleDescription = () => {
+            setSelectedItem(selectedItem && selectedItem.id === item.id ? null : item);
+        };
+
+        return (
+            <TouchableOpacity onPress={toggleDescription}>
+                <View style={[styles.cardContainer, getItemStyle(item.hour_start, item.hour_finish)]}>
+                    {item.imagem ? (
+                        <ImageBackground 
+                            source={{ uri: imageUrl }} 
+                            style={styles.backgroundImage} 
+                            imageStyle={styles.backgroundImageStyle} 
+                            // Ajuste para garantir que a imagem preencha o contêiner
+                        >
+                            <View style={styles.textContainer}>
+                                <Text style={styles.programName}>{item.program_name}</Text>
+                                <Text style={styles.time}>{item.hour_start} - {item.hour_finish}</Text>
+                            </View>
+                            <View style={styles.item}>
+                                {selectedItem && selectedItem.id === item.id && (
+                                    <View style={styles.descriptionBox}>
+                                        <Text style={styles.descriptionText}>{item.description}</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </ImageBackground>
+                    ) : (
+                        <View style={styles.item}>
+                            <View style={styles.textContainer}>
+                                <Text style={styles.programName}>{item.program_name}</Text>
+                                <Text style={styles.time}>{item.hour_start} - {item.hour_finish}</Text>
+                            </View>
                             {selectedItem && selectedItem.id === item.id && (
                                 <View style={styles.descriptionBox}>
                                     <Text style={styles.descriptionText}>{item.description}</Text>
                                 </View>
                             )}
                         </View>
-                    </ImageBackground>
-                ) : (
-                    <View style={[styles.item, getItemStyle(item.hour_start, item.hour_finish)]}>
-                        <Text style={styles.programName}>{item.program_name}</Text>
-                        <Text style={styles.time}>{item.hour_start} - {item.hour_finish}</Text>
-                        {selectedItem && selectedItem.id === item.id && (
-                            <View style={styles.descriptionBox}>
-                                <Text style={styles.descriptionText}>{item.description}</Text>
-                            </View>
-                        )}
-                    </View>
-                )}
-            </View>
-        </TouchableOpacity>
-    );
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
@@ -97,6 +141,14 @@ const Timetable = () => {
 
     return (
         <View style={styles.container}>
+            <MaterialIcons 
+                name="arrow-back-ios" 
+                size={24} 
+                color={scrollIndex > 0 ? "black" : "gray"} 
+                onPress={handlePrev} 
+                style={[styles.arrowLeft, { opacity: scrollIndex > 0 ? 1 : 0.5 }]}
+                disabled={scrollIndex <= 0}
+            />
             <FlatList
                 ref={flatListRef}
                 data={timetables}
@@ -105,90 +157,128 @@ const Timetable = () => {
                 horizontal
                 contentContainerStyle={styles.listContainer}
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={itemWidth + 20} // Adjusting for card width and margin
+                snapToAlignment="center"
+                snapToInterval={itemWidth + itemSpacing} // Adjusting for card width and margin
                 decelerationRate="fast"
                 pagingEnabled
                 getItemLayout={(data, index) => (
-                    { length: itemWidth + 20, offset: (itemWidth + 20) * index, index }
+                    { length: itemWidth + itemSpacing, offset: (itemWidth + itemSpacing) * index, index }
                 )}
+                initialNumToRender={1}
+            />
+            <MaterialIcons 
+                name="arrow-forward-ios" 
+                size={24} 
+                color={scrollIndex < timetables.length - 1 ? "black" : "blue"} 
+                onPress={handleNext} 
+                style={[styles.arrowRight, { opacity: scrollIndex < timetables.length - 1 ? 1 : 0.5 }]}
+                disabled={scrollIndex >= timetables.length - 1}
             />
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        paddingVertical: 20,
+        paddingVertical: 5,
     },
     listContainer: {
-        paddingHorizontal: itemSpacing,
+        paddingHorizontal: itemSpacing / 3,
     },
     cardContainer: {
-        width: itemWidth + 20,
+        width: width*0.78,
+        height: height*0.4,
+        marginHorizontal: itemSpacing / 2,
         justifyContent: 'center',
         alignItems: 'center',
     },
     backgroundImage: {
-        width: itemWidth,
-        height: 200,
+        width: null,
+        height: height*0.36,
         justifyContent: 'center',
         alignItems: 'center',
+        resizeMode: 'contain',
     },
     backgroundImageStyle: {
-        borderRadius: 10,
+        borderRadius: 0,
+        width: width*0.8,
+        resizeMode: 'contain',
     },
     item: {
         width: itemWidth,
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        height: itemWidth,
+        padding: 0,
+        //backgroundColor: 'rgba(255, 255, 255, 0.0)',
         justifyContent: 'center',
         alignItems: 'center',
+        position: 'relative',
+        resizeMode: 'contain',
+    },
+    textContainer: {
+        position: 'absolute',
+        top: width*0.05,
+        right: width*0.15,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderTopRightRadius: 10,
+        borderBottomLeftRadius: 10,
     },
     programName: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
+        color: '#fff',
+        textAlign: 'right',
     },
     time: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
+        fontSize: 14,
+        color: '#fff',
+        textAlign: 'right',
     },
     past: {
         borderColor: '#f8d7da',
-        borderWidth: 2,
+        borderWidth: 0,
     },
     present: {
         borderColor: '#d4edda',
-        borderWidth: 2,
+        borderWidth: 0,
     },
     future: {
         borderColor: '#f9f9f9',
-        borderWidth: 2,
+        borderWidth: 0,
     },
     descriptionBox: {
-        marginTop: 10,
-        padding: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: width*0.6,
+        height: height*0.35,
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        resizeMode: 'contain'
     },
     descriptionText: {
-        fontSize: 14,
-        color: '#fff',
+        fontSize: 18,
+        color: '#000',
         textAlign: 'center',
     },
     errorText: {
         color: 'red',
         textAlign: 'center',
         marginTop: 20,
+    },
+    arrowLeft: {
+        position: 'absolute',
+        left: 20,
+        zIndex: 1,
+    },
+    arrowRight: {
+        position: 'absolute',
+        right: 20,
+        zIndex: 1,
     },
 });
 

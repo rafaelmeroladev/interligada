@@ -8,8 +8,10 @@ use App\Models\User;
 use App\Policies\GlobalAdminManagerSpeakerPolicy;
 use App\Models\News;
 use App\Models\Timetable;
+use App\Models\Sponsor;
 use App\Policies\NewsPolicy;
 use App\Policies\TimetablePolicy;
+use App\Policies\AdminPolicy;
 
 
 class AuthServiceProvider extends ServiceProvider
@@ -20,9 +22,10 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        User::class => GlobalAdminManagerSpeakerPolicy::class,
-        News::class => NewsPolicy::class,
-        Timetable::class => TimetablePolicy::class,
+        // User::class => GlobalAdminManagerSpeakerPolicy::class,
+        // News::class => AdminPolicy::class,
+        // Timetable::class => AdminPolicy::class,
+        // Sponsor::class => AdminPolicy::class,
     ];
 
     /**
