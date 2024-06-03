@@ -108,7 +108,7 @@ export default function App() {
                                     style={styles.closeButton}
                                     titleStyle={styles.closeButtonTitle}  
                                     onPress={closeModal}>
-                                    <Text>Fechar</Text>
+                                    <Text  style={styles.closeButtonTitle} >Fechar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -160,12 +160,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
-        color: '#FFC655',
         fontSize: 18,
-        backgroundColor: '#000',
+        backgroundColor: '#FFC655',
     },
     closeButtonTitle: {
-        color: '#FFC655',
+        color: '#000',
         fontSize: 18,
         fontWeight: 'bold',
     },
@@ -186,8 +185,14 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         height: '50%',
-        backgroundColor: '#FFC655',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: 5,
+        borderColor: '#000',
+        borderWidth:2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.8,
+        shadowRadius: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         alignItems: 'center',

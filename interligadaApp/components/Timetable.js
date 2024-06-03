@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import axios from 'axios';
 import { API_BASE_URL, API_BASE_IMAGE_URL } from '@env'; // Import API_BASE_IMAGE_URL
-import moment from 'moment';
+import moment from 'moment-timezone'; // Importa moment-timezone
 import { MaterialIcons } from '@expo/vector-icons';
 
 const  width  = Dimensions.get('window').width;
@@ -26,7 +26,7 @@ const Timetable = ({ resetKey }) => {
                 setTimetables(sortedTimetables);
                 setLoading(false);
 
-                const now = moment();
+                const now = moment().tz("America/Sao_Paulo");;
                 const closestIndex = sortedTimetables.findIndex(item => moment(item.hour_start, 'HH:mm').isAfter(now));
                 const indexToScroll = closestIndex === -1 ? sortedTimetables.length - 1 : closestIndex;
                 // Scroll to the closest program
@@ -47,10 +47,10 @@ const Timetable = ({ resetKey }) => {
     }, [resetKey]);
 
     const getItemStyle = (hourStart, hourFinish) => {
-        const now = moment();
-        const start = moment(hourStart, 'HH:mm');
-        const finish = moment(hourFinish, 'HH:mm');
-
+        const now = moment().tz("America/Sao_Paulo");
+        const start = moment(hourStart, 'HH:mm').tz("America/Sao_Paulo");
+        const finish = moment(hourFinish, 'HH:mm').tz("America/Sao_Paulo");
+        console.log(now);
         if (now.isBefore(start)) {
             return styles.future;
         } else if (now.isBetween(start, finish)) {
@@ -93,12 +93,13 @@ const Timetable = ({ resetKey }) => {
 
         return (
             <TouchableOpacity onPress={toggleDescription}>
-                <View style={[styles.cardContainer, getItemStyle(item.hour_start, item.hour_finish)]}>
+                <View style={styles.cardContainer}>
                     {item.imagem ? (
-                        <ImageBackground 
+                        <ImageBackground
+                            
                             source={{ uri: imageUrl }} 
-                            style={styles.backgroundImage} 
-                            imageStyle={styles.backgroundImageStyle} 
+                            style={styles.backgroundImage}
+                            imageStyle={[styles.backgroundImageStyle,getItemStyle(item.hour_start, item.hour_finish)]}
                             // Ajuste para garantir que a imagem preencha o contêiner
                         >
                             <View style={styles.textContainer}>
@@ -204,9 +205,9 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     backgroundImageStyle: {
-        borderRadius: 0,
+        borderRadius: 30,
         width: width*0.8,
-        resizeMode: 'contain',
+        
     },
     item: {
         width: itemWidth,
@@ -240,16 +241,17 @@ const styles = StyleSheet.create({
         textAlign: 'right',
     },
     past: {
-        borderColor: '#f8d7da',
-        borderWidth: 0,
+        borderColor: '#ee6b6e',
+        borderWidth: 5,
+        
     },
     present: {
         borderColor: '#d4edda',
-        borderWidth: 0,
+        borderWidth: 5,
     },
     future: {
         borderColor: '#f9f9f9',
-        borderWidth: 0,
+        borderWidth: 5,
     },
     descriptionBox: {
         width: width*0.6,
