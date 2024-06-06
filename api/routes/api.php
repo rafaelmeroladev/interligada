@@ -21,16 +21,54 @@ use App\Policies\GlobalAdminManagerSpeakerPolicy;
 |
 */
 // Public Routes
+// Route::get('timetables/day', [TimetableController::class, 'showDay']);
+// Route::resource('news', NewsController::class);
+// Route::resource('timetables', TimetableController::class);
+// Route::resource('pedidos', RequestsController::class);
+// Route::resource('usuarios', UsersController::class);
+// Route::resource('sponsors', 'App\Http\Controllers\SponsorController');
+// Route::post('login', [AuthController::class, 'login']);
+
+// Route::get('/program', [RequestsController::class, 'searchProgram']);
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('/activeRequests', [RequestsController::class, 'activeRequestsSystem']);
+//     Route::post('/restoreRequestProgram/{id}', [RequestsController::class, 'restoreRequestProgram']);
+// });
+
+
+
 Route::get('timetables/day', [TimetableController::class, 'showDay']);
-Route::resource('news', NewsController::class);
-Route::resource('timetables', TimetableController::class);
-Route::resource('pedidos', RequestsController::class);
-Route::resource('usuarios', UsersController::class);
-Route::resource('sponsors', 'App\Http\Controllers\SponsorController');
-Route::post('login', [AuthController::class, 'login']);
-Route::post('/activeRequests', [RequestsController::class, 'activeRequestsSystem']);
-Route::post('/restoreRequestProgram/{id}', [RequestsController::class, 'restoreRequestProgram']);
+Route::resource('news', NewsController::class)->only(['index', 'show']);
+Route::resource('sponsors', SponsorController::class)->only(['index', 'show']);
+Route::post('pedidos', [RequestsController::class, 'store']);
+Route::post('login',  [AuthController::class, 'login']);
 Route::get('/program', [RequestsController::class, 'searchProgram']);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+// Protected Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+    Route::middleware('checkUserLevel:admin')->group(function () {
+        Route::resource('news', NewsController::class)->except(['index', 'show']);
+        Route::resource('timetables', TimetableController::class);
+        Route::resource('pedidos', RequestsController::class)->except(['store']);
+        Route::resource('usuarios', UsersController::class);
+        Route::resource('sponsors', SponsorController::class)->except(['index', 'show']);
+    });
+
+    Route::middleware('checkUserLevel:manager')->group(function () {
+        Route::resource('news', NewsController::class)->only(['store', 'update', 'index', 'show']);
+        Route::resource('timetables', TimetableController::class)->only(['store', 'update', 'index', 'show']);
+        Route::resource('pedidos', RequestsController::class)->only(['store', 'update', 'index', 'show']);
+    });
+
+    Route::middleware('checkUserLevel:speaker')->group(function () {
+        Route::resource('pedidos', RequestsController::class)->only(['index', 'show', 'update']);
+    });
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 });

@@ -22,7 +22,7 @@ class TimetableController extends Controller
     public function showDay()
     {
         $dayOfWeek = Carbon::now()->format('l');
-        $timetables = Timetable::where('day_week', $dayOfWeek)->get();
+        $timetables = Timetable::where('day_week', $dayOfWeek)->orderBy('hour_finish')->get();
         return response()->json($timetables);
     }
 

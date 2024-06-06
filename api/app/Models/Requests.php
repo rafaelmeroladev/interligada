@@ -13,7 +13,7 @@ class Requests extends Model
     protected $table = 'requests';
 
     protected $fillable = [
-        'request_program_id', 'type', 'email', 'phone', 'read', 'message', 'name'
+        'request_program_id', 'type', 'email', 'phone', 'read', 'message', 'name', 'state', 'city'
     ];
 
     public function requestProgram() {

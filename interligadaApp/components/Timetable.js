@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import axios from 'axios';
 import { API_BASE_URL, API_BASE_IMAGE_URL } from '@env'; // Import API_BASE_IMAGE_URL
-import moment from 'moment-timezone'; // Importa moment-timezone
+import { DateTime } from 'luxon'; // Importa luxon
 import { MaterialIcons } from '@expo/vector-icons';
 
-const  width  = Dimensions.get('window').width;
-const  height  = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 const itemWidth = width * 0.8;
 const itemSpacing = (width - itemWidth) / 2;
 
@@ -15,28 +15,46 @@ const Timetable = ({ resetKey }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
-    const [scrollIndex, setScrollIndex] = useState(0); // State to track the current index
+    const [scrollIndex, setScrollIndex] = useState(0);
     const flatListRef = useRef(null);
 
     useEffect(() => {
         const fetchTimetables = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/timetables/day`);
-                const sortedTimetables = response.data.sort((a, b) => moment(a.hour_start, 'HH:mm').diff(moment(b.hour_start, 'HH:mm')));
+                const sortedTimetables = response.data.sort((a, b) => {
+                    const startA = DateTime.fromFormat(a.hour_start, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+                    const startB = DateTime.fromFormat(b.hour_start, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+                    return startA - startB;
+                });
                 setTimetables(sortedTimetables);
                 setLoading(false);
 
-                const now = moment().tz("America/Sao_Paulo");;
-                const closestIndex = sortedTimetables.findIndex(item => moment(item.hour_start, 'HH:mm').isAfter(now));
+                const now = DateTime.now().setZone('America/Sao_Paulo');
+
+                // Encontre o índice do programa atual ou o mais próximo
+                const currentOrClosestIndex = sortedTimetables.findIndex(item => {
+                    const start = DateTime.fromFormat(item.hour_start, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+                    const finish = DateTime.fromFormat(item.hour_finish, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+                    return now >= start && now <= finish;
+                });
+
+                const closestIndex = currentOrClosestIndex === -1
+                    ? sortedTimetables.findIndex(item => {
+                        const start = DateTime.fromFormat(item.hour_start, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+                        return start > now;
+                    })
+                    : currentOrClosestIndex;
+
                 const indexToScroll = closestIndex === -1 ? sortedTimetables.length - 1 : closestIndex;
-                // Scroll to the closest program
+
                 setTimeout(() => {
                     if (flatListRef.current && indexToScroll >= 0 && indexToScroll < sortedTimetables.length) {
                         flatListRef.current.scrollToIndex({ animated: true, index: indexToScroll, viewPosition: 0.5 });
                     }
                     setSelectedItem(sortedTimetables[indexToScroll]);
-                    setScrollIndex(indexToScroll); // Update the scroll index
-                }, 100); // Small delay to ensure FlatList is rendered
+                    setScrollIndex(indexToScroll);
+                }, 100);
             } catch (error) {
                 setError('Erro ao carregar a programação. Por favor, tente novamente.');
                 setLoading(false);
@@ -47,13 +65,13 @@ const Timetable = ({ resetKey }) => {
     }, [resetKey]);
 
     const getItemStyle = (hourStart, hourFinish) => {
-        const now = moment().tz("America/Sao_Paulo");
-        const start = moment(hourStart, 'HH:mm').tz("America/Sao_Paulo");
-        const finish = moment(hourFinish, 'HH:mm').tz("America/Sao_Paulo");
-        console.log(now);
-        if (now.isBefore(start)) {
+        const now = DateTime.now().setZone('America/Sao_Paulo');
+        const start = DateTime.fromFormat(hourStart, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+        const finish = DateTime.fromFormat(hourFinish, 'HH:mm:ss', { zone: 'America/Sao_Paulo' });
+
+        if (now < start) {
             return styles.future;
-        } else if (now.isBetween(start, finish)) {
+        } else if (now >= start && now <= finish) {
             return styles.present;
         } else {
             return styles.past;
@@ -91,16 +109,16 @@ const Timetable = ({ resetKey }) => {
             setSelectedItem(selectedItem && selectedItem.id === item.id ? null : item);
         };
 
+        const itemStyle = getItemStyle(item.hour_start, item.hour_finish);
+
         return (
             <TouchableOpacity onPress={toggleDescription}>
                 <View style={styles.cardContainer}>
                     {item.imagem ? (
                         <ImageBackground
-                            
-                            source={{ uri: imageUrl }} 
+                            source={{ uri: imageUrl }}
                             style={styles.backgroundImage}
-                            imageStyle={[styles.backgroundImageStyle,getItemStyle(item.hour_start, item.hour_finish)]}
-                            // Ajuste para garantir que a imagem preencha o contêiner
+                            imageStyle={[styles.backgroundImageStyle, itemStyle]}
                         >
                             <View style={styles.textContainer}>
                                 <Text style={styles.programName}>{item.program_name}</Text>
@@ -142,11 +160,11 @@ const Timetable = ({ resetKey }) => {
 
     return (
         <View style={styles.container}>
-            <MaterialIcons 
-                name="arrow-back-ios" 
-                size={24} 
-                color={scrollIndex > 0 ? "black" : "gray"} 
-                onPress={handlePrev} 
+            <MaterialIcons
+                name="arrow-back-ios"
+                size={24}
+                color={scrollIndex > 0 ? "white" : "yellow"}
+                onPress={handlePrev}
                 style={[styles.arrowLeft, { opacity: scrollIndex > 0 ? 1 : 0.5 }]}
                 disabled={scrollIndex <= 0}
             />
@@ -159,7 +177,7 @@ const Timetable = ({ resetKey }) => {
                 contentContainerStyle={styles.listContainer}
                 showsHorizontalScrollIndicator={false}
                 snapToAlignment="center"
-                snapToInterval={itemWidth + itemSpacing} // Adjusting for card width and margin
+                snapToInterval={itemWidth + itemSpacing}
                 decelerationRate="fast"
                 pagingEnabled
                 getItemLayout={(data, index) => (
@@ -167,18 +185,17 @@ const Timetable = ({ resetKey }) => {
                 )}
                 initialNumToRender={1}
             />
-            <MaterialIcons 
-                name="arrow-forward-ios" 
-                size={24} 
-                color={scrollIndex < timetables.length - 1 ? "black" : "blue"} 
-                onPress={handleNext} 
+            <MaterialIcons
+                name="arrow-forward-ios"
+                size={24}
+                color={scrollIndex < timetables.length - 1 ? "white" : "yellow"}
+                onPress={handleNext}
                 style={[styles.arrowRight, { opacity: scrollIndex < timetables.length - 1 ? 1 : 0.5 }]}
                 disabled={scrollIndex >= timetables.length - 1}
             />
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -191,29 +208,27 @@ const styles = StyleSheet.create({
         paddingHorizontal: itemSpacing / 3,
     },
     cardContainer: {
-        width: width*0.78,
-        height: height*0.4,
+        width: width * 0.78,
+        height: height * 0.4,
         marginHorizontal: itemSpacing / 2,
         justifyContent: 'center',
         alignItems: 'center',
     },
     backgroundImage: {
         width: null,
-        height: height*0.36,
+        height: height * 0.36,
         justifyContent: 'center',
         alignItems: 'center',
         resizeMode: 'contain',
     },
     backgroundImageStyle: {
         borderRadius: 30,
-        width: width*0.8,
-        
+        width: width * 0.8,
     },
     item: {
         width: itemWidth,
         height: itemWidth,
         padding: 0,
-        //backgroundColor: 'rgba(255, 255, 255, 0.0)',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
@@ -221,8 +236,8 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         position: 'absolute',
-        top: width*0.05,
-        right: width*0.15,
+        top: width * 0.05,
+        right: width * 0.15,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         paddingVertical: 5,
         paddingHorizontal: 10,
@@ -243,27 +258,27 @@ const styles = StyleSheet.create({
     past: {
         borderColor: '#ee6b6e',
         borderWidth: 5,
-        
     },
     present: {
-        borderColor: '#d4edda',
+        borderColor: 'rgb(170, 255, 0)',
         borderWidth: 5,
     },
     future: {
-        borderColor: '#f9f9f9',
+        borderColor: 'rgb(255, 234, 0)',
         borderWidth: 5,
     },
     descriptionBox: {
-        width: width*0.6,
-        height: height*0.35,
-        backgroundColor: 'rgba(255, 255, 255, 0.6)',
-        borderRadius: 10,
+        width: width * 0.78,
+        height: height * 0.35,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         resizeMode: 'contain'
     },
     descriptionText: {
-        fontSize: 18,
+        fontSize: 20,
+        fontWeight: 'bold',
         color: '#000',
         textAlign: 'center',
     },
