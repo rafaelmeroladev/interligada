@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Alert,TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import { API_BASE_URL } from '@env';
@@ -21,6 +21,7 @@ const Requests = ({ onClose, showSuccessPopup }) => {
             onClose();
             showSuccessPopup();
         } catch (error) {
+            console.log(error);
             setResponseMessage('Erro ao enviar o pedido.');
             onClose();
             Alert.alert('Erro', 'Erro ao enviar o pedido.');
@@ -63,6 +64,7 @@ const Requests = ({ onClose, showSuccessPopup }) => {
                         placeholder="Seu telefone"
                         placeholderTextColor="#000"
                         value={phone}
+                        keyboardType={'phone-pad'}
                         onChangeText={setPhone}
                         style={[styles.input, styles.halfInput]}
                     />

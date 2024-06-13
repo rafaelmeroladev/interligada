@@ -7,20 +7,15 @@ use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(News::class, 'news');
-    }
 
     public function index()
     {
-        return News::all();
+        $news = News::all();
+        return response()->json($news, 201);
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', News::class);
-
         $news = News::create($request->all());
         return response()->json($news, 201);
     }
@@ -32,16 +27,12 @@ class NewsController extends Controller
 
     public function update(Request $request, News $news)
     {
-        $this->authorize('update', $news);
-
         $news->update($request->all());
         return response()->json($news, 200);
     }
 
     public function destroy(News $news)
     {
-        $this->authorize('delete', $news);
-
         $news->delete();
         return response()->json(null, 204);
     }

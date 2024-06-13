@@ -17,8 +17,8 @@ class CheckUserLevel
             'manager' => 2,
             'speaker' => 1,
         ];
-        dd($level);
-        if (isset($levels[$level]) && isset($levels[$user->level]) && $levels[$user->level] >= $levels[$level]) {
+
+        if (isset($levels[$user->level]) && $levels[$user->level] >= $levels[$level]) {
             return $next($request);
         }
 

@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler'; // Adicione esta linha no topo
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Modal, Text, Alert, Button as RNButton, TouchableOpacity,Dimensions } from 'react-native';
+import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpacity,Dimensions } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
@@ -28,10 +28,13 @@ export default function App() {
     useEffect(() => {
         const checkLocutorStatus = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/program`);
+                const response = await axios.get(`${API_BASE_URL}/program`, {
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'},});
                 setLocutorOnline(response.data === 'Online');
             } catch (error) {
-                console.error('Erro ao verificar o status do locutor:', error);
+                console.error('Erro ao verificar o status do locutor:', error.message);
             }
         };
 

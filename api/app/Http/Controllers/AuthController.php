@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -13,15 +14,16 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $token = $user->createToken('Personal Access Token')->plainTextToken;
+            $token = $user->createToken('API Token')->plainTextToken;
 
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
+                'user' => $user,
             ]);
+        } else {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        return response()->json(['error' => 'Unauthorized'], 401);
     }
 
     public function logout(Request $request)

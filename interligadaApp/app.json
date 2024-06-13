@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "interligadaApp",
+    "name": "interligadaHits",
     "slug": "interligadaApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -27,11 +27,28 @@
     "android": {
       "package": "com.interligadahits.interligadaApp",
       "permissions": [
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "INTERNET"
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          },
+          "ios": {}
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e16a0a37-62be-4c23-a077-1ed83cc798d6"
+      }
     }
   }
 }

@@ -67,7 +67,8 @@ class RequestsController extends Controller {
     public function activeRequestsSystem(Request $request) {
         $user = Auth::user();
         $status = $request->input('status');
-
+        $timetableData = $request->input('timetable_id');
+        
         // Verificar se o locutor já tem um sistema de pedidos ativo
         $existingProgram = RequestProgram::where('user_id', $user->id)
             ->where('status', 'online')
@@ -76,16 +77,18 @@ class RequestsController extends Controller {
         if ($existingProgram) {
             // Atualizar o status do sistema de pedidos existente
             $existingProgram->status = $status;
+            $existingProgram->timetable_id = $timetableData;
             $existingProgram->save();
         } else {
             // Criar um novo sistema de pedidos
             RequestProgram::create([
                 'user_id' => $user->id,
                 'status' => $status,
+                'timetable_id' => $timetableData
             ]);
         }
 
-        return response()->json(['message' => 'Sistema de pedidos atualizado com sucesso', 'status' => $status]);
+        return response()->json(['message' => 'Sistema de pedidos atualizado com sucesso', 'status' => $status, 'timetable' => $timetableData]);
     }
 
     public function restoreRequestProgram($id) {

@@ -16,7 +16,8 @@ class TimetableController extends Controller
 
     public function index()
     {
-        return Timetable::all();
+        $timetablesAll = Timetable::get();
+        return response()->json($timetablesAll);
     }
 
     public function showDay()

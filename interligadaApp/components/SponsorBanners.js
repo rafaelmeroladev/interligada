@@ -37,6 +37,11 @@ const SponsorBanner = ({resetKey}) => {
         }
     }, [sponsors]);
 
+    const handlePress = (url) => Linking.canOpenURL(url).then(() => {
+        console.log(url);
+        Linking.openURL(url);
+    });
+
     return (
         <View style={styles.bannerContainer}>
             <FlatList
@@ -47,7 +52,7 @@ const SponsorBanner = ({resetKey}) => {
                 pagingEnabled
                 renderItem={({ item }) => (
                     <View style={styles.bannerItem}>
-                        <TouchableOpacity onPress={() => Linking.openURL(item.link)}>
+                         <TouchableOpacity key={item.id} onPress={()=>{ Linking.openURL(item.link)}}>
                             <Image
                                 source={{ uri: `${API_BASE_IMAGE_URL}/${item.imagem}` }}
                                 style={styles.bannerImage}
