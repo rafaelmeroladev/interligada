@@ -10,10 +10,11 @@ import SponsorBanners from './components/SponsorBanners';
 import Timetable from './components/Timetable';
 import { LinearGradient } from 'expo-linear-gradient'; // Certifique-se de que esta linha está correta
 import PartnersBanner from './components/PartnersBanner';
-
+import { PixelRatio } from 'react-native';
 
 const  widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
+const scaleFont = (size) => size / PixelRatio.getFontScale();
 
 export default function App() {
     const [modalVisible, setModalVisible] = useState(false);
@@ -23,7 +24,6 @@ export default function App() {
     const [locutorOnline, setLocutorOnline] = useState(false);
     const [resetKey, setResetKey] = useState(0);
     const [autoPlay, setAutoPlay] = useState(false);
-
  
     useEffect(() => {
        
@@ -141,10 +141,10 @@ export default function App() {
                         </View>
                     </View>
                 </Modal>
-
+        
                 {successPopupVisible && (
                     <View style={styles.successPopup}>
-                        <Text style={styles.successPopupText}>Pedido enviado com sucesso!</Text>
+                        <Text style={styles.successPopupText}>Mensagem enviado com sucesso!</Text>
                     </View>
                 )}
             </View>
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     },
     titleStyle: {
         color: '#FFC655',
-        fontSize: 18,
+        fontSize: scaleFont(18),
         paddingStart: 5,
         fontWeight: 'bold',
     },
@@ -172,14 +172,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
-        fontSize: 18,
+        fontSize: scaleFont(18),
         backgroundColor: '#FFC655',
         borderRadius: 5,
         marginTop: 10,
     },
     closeButtonTitle: {
         color: '#000',
-        fontSize: 18,
+        fontSize: scaleFont(20),
         fontWeight: 'bold',
     },
     menu: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
         height: '52%',
     },
     modalText: {
-        fontSize: 18,
+        fontSize: scaleFont(18),
         textAlign: 'center',
         marginBottom: 20,
         color: '#fff',
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '50%',
         left: '50%',
-        transform: [{ translateX: -widthScreen * 0.4 }, { translateY: -50 }],
+        transform: [{ translateX: -widthScreen * 0.40 }, { translateY: -50 }],
         backgroundColor: '#d4edda',
         padding: 20,
         borderRadius: 10,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     },
     successPopupText: {
         color: '#155724',
-        fontSize: 18,
+        fontSize: scaleFont(18),
         fontWeight: 'bold',
         textAlign: 'center',
     },
