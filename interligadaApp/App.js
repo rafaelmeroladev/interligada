@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler'; // Adicione esta linha no topo
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpacity,Dimensions } from 'react-native';
+import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpacity,Dimensions, StatusBar  } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
@@ -75,6 +75,7 @@ export default function App() {
 
     return (
         <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
+            <StatusBar barStyle="dark-content" backgroundColor="#FFDD58" /> 
             <View style={styles.container}>
                 <SponsorBanners resetKey={resetKey}  />
                 <RadioPlayer  resetKey={resetKey} />
