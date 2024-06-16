@@ -104,7 +104,6 @@ const Timetable = ({ resetKey }) => {
 
     const renderItem = ({ item }) => {
         const imageUrl = item.imagem ? `${API_BASE_IMAGE_URL}/${item.imagem}` : null;
-
         const toggleDescription = () => {
             setSelectedItem(selectedItem && selectedItem.id === item.id ? null : item);
         };

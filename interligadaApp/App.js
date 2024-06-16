@@ -23,9 +23,10 @@ export default function App() {
     const [locutorOnline, setLocutorOnline] = useState(false);
     const [resetKey, setResetKey] = useState(0);
     const [autoPlay, setAutoPlay] = useState(false);
-    
+
  
     useEffect(() => {
+       
         const checkLocutorStatus = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/program`, {

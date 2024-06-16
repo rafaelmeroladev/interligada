@@ -8,6 +8,10 @@ const { width } = Dimensions.get('window');
 const SponsorBanner = ({resetKey}) => {
     const [sponsors, setSponsors] = useState([]);
     const flatListRef = useRef(null);
+    const Header = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      };
 
     useEffect(() => {
         const fetchSponsors = async () => {
@@ -15,7 +19,7 @@ const SponsorBanner = ({resetKey}) => {
                 const response = await axios.get(`${API_BASE_URL}/sponsors`);
                 setSponsors(response.data);
             } catch (error) {
-                console.error('Erro ao carregar os sponsors:', error);
+                console.error('Erro ao carregar os sponsors:', error.message);
             }
         };
 
@@ -58,6 +62,7 @@ const SponsorBanner = ({resetKey}) => {
                                 style={styles.bannerImage}
                             />
                         </TouchableOpacity>
+
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
