@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, StyleSheet, Dimensions, FlatList, TouchableOpacity, Linking } from 'react-native';
+import { View, Image, StyleSheet, Dimensions, Alert,FlatList, TouchableOpacity, Text,Linking } from 'react-native';
 import axios from 'axios';
 import { API_BASE_URL, API_BASE_IMAGE_URL } from '@env';
+import { color } from 'react-native-elements/dist/helpers';
 
 const { width } = Dimensions.get('window');
 
@@ -41,10 +42,18 @@ const SponsorBanner = ({resetKey}) => {
         }
     }, [sponsors]);
 
-    const handlePress = (url) => Linking.canOpenURL(url).then(() => {
-        console.log(url);
-        Linking.openURL(url);
-    });
+    const handlePress = async (url) => {
+        try {
+            const supported = await Linking.canOpenURL(url);
+            if (supported) {
+                await Linking.openURL(url);
+            } else {
+                Alert.alert('Erro', 'Não foi possível abrir o link:'+url);
+            }
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível abrir o link:'+url+' - '+error);
+        }
+    };
 
     return (
         <View style={styles.bannerContainer}>
@@ -55,15 +64,14 @@ const SponsorBanner = ({resetKey}) => {
                 showsHorizontalScrollIndicator={false}
                 pagingEnabled
                 renderItem={({ item }) => (
-                    <View style={styles.bannerItem}>
-                         <TouchableOpacity key={item.id} onPress={()=>{ Linking.openURL(item.link)}}>
+                    <TouchableOpacity  style={{zIndex:1500}} onPress={() => handlePress(item.link)}>
+                        <View style={styles.bannerItem}>
                             <Image
                                 source={{ uri: `${API_BASE_IMAGE_URL}/${item.imagem}` }}
                                 style={styles.bannerImage}
                             />
-                        </TouchableOpacity>
-
-                    </View>
+                        </View>
+                    </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
             />
@@ -77,8 +85,10 @@ const styles = StyleSheet.create({
         height: width*0.20,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: width*0.15,
-        position: 'flex'
+        top: 0,
+        marginTop: width*0.05,
+        position: 'flex',
+        zIndex: 20000
     },
     scrollViewContent: {
         alignItems: 'center',

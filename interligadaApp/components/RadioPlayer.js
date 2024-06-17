@@ -5,6 +5,7 @@ import { STREAMING_URL, SONG_INFO_URL } from '@env';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import SponsorBanners from './SponsorBanners';
 
 // Importe a imagem do headphone
 const headphoneImage = require('../assets/headphone.png');
@@ -122,6 +123,7 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
     
     return (
         <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
+     
             <View style={styles.bgPlayer}>
                 {isLoading && (
                     <View style={styles.loadingOverlay}>
@@ -176,6 +178,7 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         alignItems: 'left',
+        
     },
     cover: {
         width: widthScreen*0.5,
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 10,
         elevation: 5,
+        
     },
     buttonText: {
         fontSize: 30, // Tamanho da fonte para os caracteres do botão
@@ -263,8 +267,9 @@ const styles = StyleSheet.create({
         width: widthScreen*0.3,
         height: widthScreen,
         elevation: 15,
-        zIndex: 50, // Garante que a logo fique acima dos outros elementos
+        zIndex: 1, // Garante que a logo fique acima dos outros elementos
         resizeMode: 'contain',
+        
     },
 });
 

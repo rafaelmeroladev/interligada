@@ -4,9 +4,9 @@ import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpaci
 import { Button, Icon } from 'react-native-elements';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
+import SponsorBanners from './components/SponsorBanners';
 import RadioPlayer from './components/RadioPlayer';
 import Requests from './components/Requests';
-import SponsorBanners from './components/SponsorBanners';
 import Timetable from './components/Timetable';
 import { LinearGradient } from 'expo-linear-gradient'; // Certifique-se de que esta linha está correta
 import PartnersBanner from './components/PartnersBanner';
@@ -75,9 +75,9 @@ export default function App() {
 
     return (
         <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFDD58" /> 
+            <StatusBar barStyle="dark-content" backgroundColor="#FFDD58" />    
             <View style={styles.container}>
-                <SponsorBanners resetKey={resetKey}  />
+            <SponsorBanners resetKey={resetKey} style={styles.sponsorApp} />
                 <RadioPlayer  resetKey={resetKey} />
                 <LinearGradient colors={['#000000', '#302F2F']} style={styles.menu}>
                     <Button 
@@ -102,7 +102,7 @@ export default function App() {
                         titleStyle={styles.titleStyle} 
                     />
                 </LinearGradient>
-
+                
                 <Modal
                     transparent={true}
                     animationType="slide"
@@ -122,7 +122,7 @@ export default function App() {
                         </View>
                     </View>
                 </Modal>
-
+                
                 <Modal
                     transparent={true}
                     animationType="slide"
@@ -142,7 +142,7 @@ export default function App() {
                         </View>
                     </View>
                 </Modal>
-        
+                
                 {successPopupVisible && (
                     <View style={styles.successPopup}>
                         <Text style={styles.successPopupText}>Mensagem enviado com sucesso!</Text>
@@ -156,6 +156,7 @@ export default function App() {
 const styles = StyleSheet.create({
     gradient: {
         flex: 1,
+        zIndex: 1,
     },
     titleStyle: {
         color: '#FFC655',
@@ -164,10 +165,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     container: {
+        position: 'static',
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    // sponsorApp:{
+    //    position: 'absolute',
+    //    zIndex: 20000,
+    //    backgroundColor: '#FFf',
+    //    elevation:8,
+    //    marginTop: -10
+    // },
     closeButton: {
         width: widthScreen * 0.2,
         justifyContent: 'center',
@@ -234,7 +243,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#155724',
         zIndex: 1000,
-        elevation:15
+        elevation:5
     },
     successPopupText: {
         color: '#155724',
