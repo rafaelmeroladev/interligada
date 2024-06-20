@@ -14,7 +14,14 @@
         "buildType": "apk"
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "STREAMING_URL": "https://s07.maxcast.com.br:8906/live",
+        "API_BASE_URL": "https://api.interligadahits.com/api",
+        "API_BASE_IMAGE_URL":"https://storage.interligadahits.com",
+        "SONG_INFO_URL": "https://s07.maxcast.com.br/api/status/sucessosdainterligada/current.json"
+      }
+    }
   },
   "submit": {
     "production": {}
