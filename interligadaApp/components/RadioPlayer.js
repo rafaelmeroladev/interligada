@@ -10,7 +10,7 @@ import SponsorBanners from './SponsorBanners';
 // Importe a imagem do headphone
 const headphoneImage = require('../assets/headphone.png');
 const logoImage = require('../assets/logo.png');
-const  widthScreen = Dimensions.get('window').width;
+const widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
 
 const RadioPlayer = ({ resetKey, autoPlay }) => {
@@ -21,6 +21,37 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
     const [cover, setCover] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const playAudio = async () => {
+        setError('');
+        setIsLoading(true);
+        try {
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: STREAMING_URL },
+                { shouldPlay: true }
+            );
+            setSound(newSound);
+            setIsPlaying(true);
+            newSound.setOnPlaybackStatusUpdate((status) => {
+                if (status.didJustFinish) {
+                    playAudio();
+                }
+            });
+        } catch (error) {
+            console.error('Erro ao carregar o som:', error);
+            setError('Erro ao carregar o áudio. Por favor, tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const stopAudio = async () => {
+        if (sound) {
+            await sound.unloadAsync();
+            setSound(null);
+            setIsPlaying(false);
+        }
+    };
 
     useEffect(() => {
         const fetchCurrentSong = async () => {
@@ -50,35 +81,18 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
     }, [resetKey]);
 
     useEffect(() => {
-        const play = async () => {
-            setError('');
-            setIsLoading(true);
-
-            try {
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: STREAMING_URL },
-                    { shouldPlay: true }
-                );
-                setSound(newSound);
-
-                await Audio.setAudioModeAsync({
-                    staysActiveInBackground: true,
-                    playsInSilentModeIOS: true,
-                    shouldDuckAndroid: true,
-                    playThroughEarpieceAndroid: false,
-                });
-
-                setIsPlaying(true);
-            } catch (error) {
-                console.error('Erro ao carregar o som:', error);
-                setError('Erro ao carregar o áudio. Por favor, tente novamente.');
-            } finally {
-                setIsLoading(false);
-            }
+        const configureAudio = async () => {
+            await Audio.setAudioModeAsync({
+                staysActiveInBackground: true,
+                playsInSilentModeIOS: true,
+                shouldDuckAndroid: true,
+                playThroughEarpieceAndroid: false,
+            });
         };
+        configureAudio();
 
         if (autoPlay) {
-            play();
+            playAudio();
         }
 
         return () => {
@@ -94,24 +108,9 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
 
         try {
             if (isPlaying) {
-                await sound.unloadAsync(); // Descarrega o som para recarregar o buffer
-                setIsPlaying(false);
-                setSound(null);
+                await stopAudio();
             } else {
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: STREAMING_URL },
-                    { shouldPlay: true }
-                );
-                setSound(newSound);
-
-                await Audio.setAudioModeAsync({
-                    staysActiveInBackground: true,
-                    playsInSilentModeIOS: true,
-                    shouldDuckAndroid: true,
-                    playThroughEarpieceAndroid: false,
-                });
-
-                setIsPlaying(true);
+                await playAudio();
             }
         } catch (error) {
             console.error('Erro ao controlar o som:', error);
@@ -120,10 +119,9 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
             setIsLoading(false);
         }
     };
-    
+
     return (
         <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
-     
             <View style={styles.bgPlayer}>
                 {isLoading && (
                     <View style={styles.loadingOverlay}>
@@ -138,15 +136,15 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
                     <Text style={styles.songText}>{currentSong}</Text>
                     <Text style={styles.artistText}>{currentArtist}</Text>
                 </View>
-                <TouchableOpacity 
-                        style={styles.playPauseButton} 
-                        onPress={handlePlayPause} 
-                        disabled={isLoading}>
-                        <Icon 
-                            name={isPlaying ? 'stop' : 'play'} 
-                            size={30} 
-                            color="#000" 
-                        />
+                <TouchableOpacity
+                    style={styles.playPauseButton}
+                    onPress={handlePlayPause}
+                    disabled={isLoading}>
+                    <Icon
+                        name={isPlaying ? 'stop' : 'play'}
+                        size={30}
+                        color="#000"
+                    />
                 </TouchableOpacity>
             </View>
             <Image source={logoImage} style={styles.logoImage} />
@@ -163,41 +161,38 @@ const styles = StyleSheet.create({
     bgPlayer: {
         backgroundColor: 'rgba(48, 47, 47, 0.95)',
         padding: 20,
-        top: -widthScreen*0.01,
+        top: -widthScreen * 0.01,
         borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.8,
         shadowRadius: 10,
         elevation: 5,
-        width: widthScreen*0.60, 
-        height: widthScreen*0.8,
+        width: widthScreen * 0.60,
+        height: widthScreen * 0.8,
         alignItems: 'center',
-        position: 'relative', // Necessário para posicionamento absoluto
+        position: 'relative',
     },
     container: {
         justifyContent: 'center',
         alignItems: 'left',
-        
     },
     cover: {
-        width: widthScreen*0.5,
-        height: widthScreen*0.5,
+        width: widthScreen * 0.5,
+        height: widthScreen * 0.5,
         margin: 10,
         borderRadius: 10,
-        resizeMode: 'covers',
-        alignItems:'center',
+        resizeMode: 'cover',
+        alignItems: 'center',
         justifyContent: 'center',
-        position:'flex',
-        elevation:0 // Bordas arredondadas para a imagem
     },
     songText: {
         marginBottom: 0,
         color: '#FFF',
         fontSize: 13,
         flexWrap: 'wrap',
-        paddingStart:10,
-        width: widthScreen*0.56,
+        paddingStart: 10,
+        width: widthScreen * 0.56,
         fontWeight: 'bold',
     },
     artistText: {
@@ -206,8 +201,8 @@ const styles = StyleSheet.create({
         fontSize: 10,
         marginBottom: 45,
         flexWrap: 'wrap',
-        paddingStart:10,
-        width: widthScreen*0.56,
+        paddingStart: 10,
+        width: widthScreen * 0.56,
         fontWeight: 'bold',
     },
     errorText: {
@@ -218,11 +213,11 @@ const styles = StyleSheet.create({
     },
     playPauseButton: {
         position: 'absolute',
-        bottom: -widthScreen*0.09, // Ajuste para sobrepor o botão na borda inferior
+        bottom: -widthScreen * 0.09,
         backgroundColor: '#FFDD58',
-        borderRadius: 50, // Torna o botão redondo
-        width: widthScreen*0.2,
-        height: widthScreen*0.2,
+        borderRadius: 50,
+        width: widthScreen * 0.2,
+        height: widthScreen * 0.2,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -230,10 +225,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 10,
         elevation: 5,
-        
     },
     buttonText: {
-        fontSize: 30, // Tamanho da fonte para os caracteres do botão
+        fontSize: 30,
         color: '#000',
     },
     loadingOverlay: {
@@ -246,7 +240,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(48, 47, 47, 0.8)',
         borderRadius: 20,
-        zIndex: 1, // Garante que o overlay fique acima do conteúdo
+        zIndex: 1,
     },
     indicatorText: {
         marginBottom: 10,
@@ -255,23 +249,21 @@ const styles = StyleSheet.create({
     },
     headphoneImage: {
         position: 'absolute',
-        top: -heightScreen*0.40, // Ajuste conforme necessário
-        width: widthScreen*1.05,
+        top: -heightScreen * 0.40,
+        width: widthScreen * 1.05,
         height: heightScreen,
         elevation: 9,
         resizeMode: 'contain',
     },
     logoImage: {
         position: 'absolute',
-        top: -widthScreen*0.3, // Ajuste conforme necessário
-        width: widthScreen*0.3,
+        top: -widthScreen * 0.3,
+        width: widthScreen * 0.3,
         height: widthScreen,
         elevation: 15,
-        zIndex: 1, // Garante que a logo fique acima dos outros elementos
+        zIndex: 1,
         resizeMode: 'contain',
-        
     },
 });
-
 
 export default RadioPlayer;

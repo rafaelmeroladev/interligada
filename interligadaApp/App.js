@@ -82,24 +82,28 @@ export default function App() {
                 <LinearGradient colors={['#000000', '#302F2F']} style={styles.menu}>
                     <Button 
                         type="clear"
-                        icon={<Icon name="home" size={30} color="#FFC655" />}
+                        icon={<Icon name="home" size={32} color="#FFC655" />}
                         title="Início"
                         onPress={resetApp}
+                        labelStyle={{ paddingVertical: 2 }}
                         titleStyle={styles.titleStyle} 
+                        accessibilityLabel="Início"
                     />
                     <Button
                         type="clear"
-                        icon={<Icon name="queue-music" size={30} color="#FFC655" />}
+                        icon={<Icon name="queue-music" size={32} color="#FFC655" />}
                         title="Pedidos"
                         onPress={() => openModal('requests')}
                         titleStyle={styles.titleStyle} 
+                        accessibilityLabel="Pedidos"
                     />
                     <Button 
                         type="clear"
-                        icon={<Icon name="event" size={30} color="#FFC655" />}
+                        icon={<Icon name="event" size={32} color="#FFC655" />}
                         title="Programação"
                         onPress={() => openModal('timetable')}
                         titleStyle={styles.titleStyle} 
+                        accessibilityLabel="Programação"
                     />
                 </LinearGradient>
                 
@@ -161,8 +165,9 @@ const styles = StyleSheet.create({
     titleStyle: {
         color: '#FFC655',
         fontSize: scaleFont(18),
-        paddingStart: 5,
+        paddingStart: 2,
         fontWeight: 'bold',
+        height: widthScreen*0.09,
     },
     container: {
         position: 'static',
@@ -170,15 +175,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    // sponsorApp:{
-    //    position: 'absolute',
-    //    zIndex: 20000,
-    //    backgroundColor: '#FFf',
-    //    elevation:8,
-    //    marginTop: -10
-    // },
     closeButton: {
-        width: widthScreen * 0.2,
+        width: widthScreen * 0.25,
+        height: widthScreen *0.15,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
@@ -189,7 +188,7 @@ const styles = StyleSheet.create({
     },
     closeButtonTitle: {
         color: '#000',
-        fontSize: scaleFont(20),
+        fontSize: scaleFont(18),
         fontWeight: 'bold',
     },
     menu: {
@@ -198,9 +197,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         width: widthScreen,
-        paddingVertical: 15,
-        borderTopWidth: 2,
-        borderColor: '#000',
+        paddingVertical: 12,
+        borderWidth: 0.5,
+        borderColor: '#FFC655',
     },
     modalContainer: {
         flex: 1,
