@@ -1,4 +1,4 @@
-package com.interligadahits.interligadaApp
+package com.interligadahits.interligadaHitsApp
 
 import android.os.Build
 import android.os.Bundle
