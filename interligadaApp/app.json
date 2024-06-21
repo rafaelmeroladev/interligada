@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.interligadahits.interligadaApp",
+      "bundleIdentifier": "com.interligadahits.interligadaHitsApp",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -25,7 +25,7 @@
       }
     },
     "android": {
-      "package": "com.interligadahits.interligadaApp",
+      "package": "com.interligadahits.interligadaHitsApp",
       "permissions": [
         "WAKE_LOCK",
         "INTERNET"
