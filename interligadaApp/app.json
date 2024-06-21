@@ -43,16 +43,17 @@
           },
           "ios": {},
           "infoPlist": {
-              "UIStatusBarStyle": "UIStatusBarStyleDarkContent",
-              "UIViewControllerBasedStatusBarAppearance": false
-            }
+            "UIStatusBarStyle": "UIStatusBarStyleDarkContent",
+            "UIViewControllerBasedStatusBarAppearance": false
+          }
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "e16a0a37-62be-4c23-a077-1ed83cc798d6"
+        "projectId": "bef92a93-b09d-4cd7-8046-ac44733ab6d7"
       }
-    }
+    },
+    "owner": "merola"
   }
 }
