@@ -1,4 +1,4 @@
-package com.interligadahits.interligadaHitsApp
+package com.interligadahits.interligadaApp
 
 import android.app.Application
 import android.content.res.Configuration

@@ -2,7 +2,7 @@
   "expo": {
     "name": "interligadaHits",
     "slug": "interligadaApp",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.interligadahits.interligadaHitsApp",
+      "bundleIdentifier": "com.interligadahits.interligadaApp",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -25,7 +25,7 @@
       }
     },
     "android": {
-      "package": "com.interligadahits.interligadaHitsApp",
+      "package": "com.interligadahits.interligadaApp",
       "permissions": [
         "WAKE_LOCK",
         "INTERNET"
