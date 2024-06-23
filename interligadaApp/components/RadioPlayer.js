@@ -53,6 +53,7 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
         }
     };
 
+    // UseEffect para buscar a música atual e atualizar a cada 10 segundos
     useEffect(() => {
         const fetchCurrentSong = async () => {
             try {
@@ -80,6 +81,7 @@ const RadioPlayer = ({ resetKey, autoPlay }) => {
         };
     }, [resetKey]);
 
+    // UseEffect para configurar o áudio e iniciar a reprodução automática
     useEffect(() => {
         const configureAudio = async () => {
             await Audio.setAudioModeAsync({
