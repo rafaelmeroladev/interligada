@@ -28,8 +28,7 @@
       "package": "com.interligadahits.interligadaApp",
       "permissions": [
         "WAKE_LOCK",
-        "INTERNET",
-        "RECORD_AUDIO"
+        "INTERNET"
       ]
     },
     "web": {
