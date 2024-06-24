@@ -30,6 +30,7 @@
         "WAKE_LOCK",
         "INTERNET"
       ],
+      "blockedPermissions": ["RECORD_AUDIO"],
       "versionCode": 2 
     },
     "web": {
