@@ -8,6 +8,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\SponsorController;
+use App\Http\Controllers\Top10Controller;
 
 
 Route::get('timetables/day', [TimetableController::class, 'showDay']);
@@ -18,6 +19,9 @@ Route::post('pedidos', [RequestsController::class, 'store']);
 Route::get('login',  [AuthController::class, 'login'])->name('login');;
 Route::get('/program', [RequestsController::class, 'searchProgram']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::get('/top10', [Top10Controller::class, 'index']);
+Route::post('/top10/vote/{id}', [Top10Controller::class, 'vote']);
+
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -40,6 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('activeRequestsSystem',  [RequestsController::class, 'activeRequestsSystem'])->name('activeRequestsSystem');
         Route::resource('horarios', TimetableController::class)->only(['index', 'show']);
     });
+
+    Route::post('/top10', [Top10Controller::class, 'store']);
+    Route::put('/top10/{id}', [Top10Controller::class, 'update']);
+    Route::delete('/top10/{id}', [Top10Controller::class, 'destroy']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();

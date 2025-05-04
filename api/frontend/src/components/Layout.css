@@ -1,0 +1,8 @@
+body {
+    padding-bottom: 60px; /* espaço pro player fixo */
+  }
+  
+  footer {
+    z-index: 999;
+  }
+  
