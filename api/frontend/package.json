@@ -11,12 +11,12 @@
     "bootstrap": "^5.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.3",
+    "react-router-dom": "^6.15.0",
     "react-scripts": "^3.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
     "deploy": "xcopy /E /Y /I build\\* ..\\public\\",
     "build-deploy": "npm run build && npm run deploy && npm run start",

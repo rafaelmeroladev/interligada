@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getNews } from '../api/news';
 import BannerCarousel from '../components/BannerCarousel';
 import Top10 from '../components/Top10';
+import { Link } from 'react-router-dom';
+import RequestForm from '../components/RequestForm';
 
 function Home() {
   const [noticias, setNoticias] = useState([]);
@@ -22,6 +24,7 @@ function Home() {
       <h2 className="mb-4">Últimas Notícias</h2>
       <div className="row">
         {noticias.map(noticia => (
+          <Link to={`/noticias/${noticia.id}`} className="text-decoration-none text-dark">
           <div className="col-md-6 mb-3" key={noticia.id}>
             <div className="card h-100">
               {noticia.image && (
@@ -34,9 +37,11 @@ function Home() {
               </div>
             </div>
           </div>
+          </Link>
         ))}
       </div>
     </div>
+    <RequestForm />
   </>
   );
 }

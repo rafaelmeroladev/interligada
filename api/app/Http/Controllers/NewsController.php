@@ -20,9 +20,15 @@ class NewsController extends Controller
         return response()->json($news, 201);
     }
 
-    public function show(News $news)
+    public function show($id)
     {
-        return $news;
+        $news = News::with('user')->find($id);
+
+        if (!$news) {
+            return response()->json(['message' => 'Notícia não encontrada'], 404);
+        }
+
+        return response()->json($news, 200);
     }
 
     public function update(Request $request, News $news)

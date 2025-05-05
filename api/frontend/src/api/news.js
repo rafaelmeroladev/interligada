@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000/api'; // coloca aqui o base da sua API
+const API_BASE = process.env.REACT_APP_API_URL; // coloca aqui o base da sua API
 
 export const getNews = async () => {
   try {

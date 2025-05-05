@@ -15,6 +15,7 @@ Route::get('timetables/day', [TimetableController::class, 'showDay']);
 Route::get('listahorarios', [TimetableController::class, 'index'])->name('listahorarios');
 Route::resource('notices', NewsController::class)->only(['index', 'show']);
 Route::resource('sponsors', SponsorController::class)->only(['index', 'show']);
+Route::get('/statusRequestSystem', [RequestsController::class, 'isRequestSystemActive']);
 Route::post('pedidos', [RequestsController::class, 'store']);
 Route::get('login',  [AuthController::class, 'login'])->name('login');;
 Route::get('/program', [RequestsController::class, 'searchProgram']);

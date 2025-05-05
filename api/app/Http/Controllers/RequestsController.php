@@ -108,4 +108,11 @@ class RequestsController extends Controller {
             return 'Offline';
         }
     }
+
+    public function isRequestSystemActive()
+    {
+        $isOnline = RequestProgram::where('status', 'online')->exists();
+
+        return response()->json(['active' => $isOnline]);
+    }
 }
