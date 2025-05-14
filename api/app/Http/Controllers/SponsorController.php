@@ -14,16 +14,18 @@ class SponsorController extends Controller
     {
         $sponsors = Sponsor::where('status', 'ativo')
             ->where('expirated_date', '>=', now())
+            ->orderBy('position', 'asc')
             ->get();
-        
+
         if ($sponsors->isEmpty()) {
             return response()->json([[
-                'nome' => 'Anuncie Aqui',
-                'link' => '#',
-                'ref' => null,
-                'imagem' => 'sponsoranuncie.png',
+                'nome'           => 'Anuncie Aqui',
+                'link'           => '#',
+                'ref'            => null,
+                'imagem'         => 'sponsoranuncie.png',
                 'expirated_date' => null,
-                'status' => 'ativo'
+                'status'         => 'ativo',
+                'position'       => 0,
             ]]);
         }
 
@@ -33,29 +35,29 @@ class SponsorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nome' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'ref' => 'nullable|string|max:255',
-            'imagem' => 'required|image|max:2048',
+            'nome'           => 'required|string|max:255',
+            'link'           => 'required|url|max:255',
+            'ref'            => 'nullable|string|max:255',
+            'imagem'         => 'required|image|max:2048',
             'expirated_date' => 'required|date|after:today',
-            'status' => 'required|in:ativo,inativo',
+            'status'         => 'required|in:ativo,inativo',
+            'position'       => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        if ($request->hasFile('imagem')) {
-            $imagePath = $request->file('imagem')->store('sponsors', 'public');
-        }
+        $imagePath = $request->file('imagem')->store('sponsors', 'public');
 
         $sponsor = Sponsor::create([
-            'nome' => $request->nome,
-            'link' => $request->link,
-            'ref' => $request->ref,
-            'imagem' => $imagePath,
+            'nome'           => $request->nome,
+            'link'           => $request->link,
+            'ref'            => $request->ref,
+            'imagem'         => $imagePath,
             'expirated_date' => $request->expirated_date,
-            'status' => $request->status,
+            'status'         => $request->status,
+            'position'       => $request->position,
         ]);
 
         return response()->json($sponsor, 201);
@@ -71,28 +73,33 @@ class SponsorController extends Controller
     {
         $sponsor = Sponsor::findOrFail($id);
 
+        // validação…
         $validator = Validator::make($request->all(), [
-            'nome' => 'sometimes|string|max:255',
-            'link' => 'sometimes|url|max:255',
-            'ref' => 'nullable|string|max:255',
-            'imagem' => 'sometimes|image|max:2048',
+            'nome'           => 'sometimes|string|max:255',
+            'link'           => 'sometimes|url|max:255',
+            'ref'            => 'nullable|string|max:255',
+            'imagem'         => 'sometimes|image|max:2048',
             'expirated_date' => 'sometimes|date|after:today',
-            'status' => 'required|in:ativo,inativo',
+            'status'         => 'required|in:ativo,inativo',
+            'position'       => 'sometimes|integer|min:0',
         ]);
-
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        // Começa montando só os dados normais
+        $data = $request->except('imagem');
+
         if ($request->hasFile('imagem')) {
-            // Delete old image
+            // apaga a velha
             Storage::disk('public')->delete($sponsor->imagem);
-            // Store new image
-            $imagePath = $request->file('imagem')->store('sponsors', 'public');
-            $sponsor->imagem = $imagePath;
+            // guarda a nova e inclui no array
+            $data['imagem'] = $request->file('imagem')
+                ->store('sponsors', 'public');
         }
 
-        $sponsor->update($request->all());
+        // atualiza somente o array limpo
+        $sponsor->update($data);
 
         return response()->json($sponsor);
     }

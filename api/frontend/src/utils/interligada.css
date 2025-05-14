@@ -1,0 +1,56 @@
+@media (min-width: 1200px) {
+    .fs-1 {
+        font-size: 2.3rem !important;
+    }
+}
+
+.download-app-section {
+    position: relative;
+    overflow: visible;
+    padding: 6rem 0;
+    background-color: #111;
+  }
+  
+  .download-app-section .mockup {
+    position: absolute;
+    right: -40px; /* para sair um pouco do container */
+    top: 50%;
+    transform: translateY(-50%); /* centraliza verticalmente */
+    z-index: 1;
+  }
+  
+  .floating-phone {
+    height: 30vh;
+    animation: float 3s ease-in-out infinite;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(-10%) translateY(0);
+    }
+    50% {
+      transform: translateY(-10%) translateY(-15px);
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .download-app-section .mockup {
+      display: none;
+    }
+  }
+
+  .banner-large { height: 350px; object-fit: cover; }
+.banner-medium { height: 200px; object-fit: cover; }
+.banner-small { height: 120px;  object-fit: cover; }
+
+
+.download-app-section .section-title {
+  color: #ffde59;
+}
+
+.text-primary {
+    --bs-text-opacity: 1;
+    color: rgba(255, 222, 89, 1) !important;
+}

@@ -25,7 +25,7 @@ function Layout() {
       </main>
 
       {/* PLAYER FIXO */}
-      <footer className="bg-black text-white py-3 fixed-bottom text-center">
+      <footer className="bg-black text-white py-3 text-center">
         <small>🎶 Tocando agora: <b>Interligada Hits - Sua rádio conectada</b></small>
       </footer>
     </>

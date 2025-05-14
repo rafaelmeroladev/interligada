@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 
 const api = process.env.REACT_APP_API_URL;
 
@@ -31,11 +31,12 @@ function RequestForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      await axios.post(`${api}/pedidos`, form);
+      await axios.post(`${api}/pedidos`, form, {  withCredentials: true});
       setSubmitted(true);
-      setForm({ type: '', email: '', phone: '', name: '', city: '', state: '', message: '' });
+      setForm({ type: form.type, email: '', phone: '', name: '', city: '', state: '', message: '' });
     } catch (err) {
-      alert('Erro ao enviar pedido.');
+      console.error('Erro ao enviar pedido:', err);
+      alert('Erro ao enviar pedido. Verifique os campos e tente novamente.');
     }
   };
 
@@ -53,9 +54,8 @@ function RequestForm() {
   }
 
   return (
-    <div className="card mt-4 shadow-sm">
+    <div className="card shadow-sm">
       <div className="card-body">
-        <h5 className="card-title">🎤 Faça seu pedido</h5>
         <form onSubmit={handleSubmit}>
         <div className="mb-2">
             <select
@@ -68,6 +68,17 @@ function RequestForm() {
                 <option value="message">✉️ Enviar Mensagem</option>
             </select>
          </div>
+         <div className="mb-2">
+            <input
+                type="text"
+                className="form-control"
+                name="name"
+                placeholder="Seu nome"
+                value={form.name}
+                onChange={handleChange}
+                required
+            />
+        </div>
          <div className="mb-2">
             <input
                 type="email"

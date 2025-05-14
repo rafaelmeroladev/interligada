@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Top10;
+use App\Http\Resources\Top10Resource;
 
 
 use Illuminate\Http\Request;
@@ -11,7 +12,8 @@ class Top10Controller extends Controller
      // Lista todas as músicas (público)
      public function index()
      {
-         return Top10::orderBy('position')->get();
+        $top10 = Top10::orderBy('position')->get();
+        return Top10Resource::collection($top10);
      }
  
      // CRUD para o admin

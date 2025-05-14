@@ -21,7 +21,7 @@ class RequestsController extends Controller {
         $requestProgram = RequestProgram::where('status', 'online')
         ->orderBy('created_at', 'desc')
         ->first();
-
+ 
         if (!$requestProgram) {
             return response()->json(['error' => 'No active request program found'], 400);
         }
@@ -114,5 +114,30 @@ class RequestsController extends Controller {
         $isOnline = RequestProgram::where('status', 'online')->exists();
 
         return response()->json(['active' => $isOnline]);
+    }
+
+    public function currentRequestProgram()
+    {
+        // Carrega o RequestProgram on-line mais recente junto com o timetable
+        $program = RequestProgram::with('timetable')
+        ->where('status', 'online')
+        ->orderBy('created_at','desc')
+        ->first();
+
+        if (!$program) {
+            return response()->json([
+                'active' => false
+            ]);
+        }
+
+        return response()->json([
+            'active' => true,
+            'logo'   => $program->timetable->imagem,  // assume que 'imagem' é o nome da coluna na sua tabela timetables
+            'timetable' => [
+                'title' => $program->timetable->title,
+                'imagem'=> $program->timetable->imagem,
+                // adicione outros campos que você precisar
+            ],
+        ]);
     }
 }

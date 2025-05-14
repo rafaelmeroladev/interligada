@@ -9,19 +9,23 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\Top10Controller;
+use App\Http\Controllers\BannerController;
 
 
 Route::get('timetables/day', [TimetableController::class, 'showDay']);
 Route::get('listahorarios', [TimetableController::class, 'index'])->name('listahorarios');
-Route::resource('notices', NewsController::class)->only(['index', 'show']);
+Route::get('notices/{slug}',[NewsController::class, 'show']);
+Route::get('notices', [NewsController::class,'index']);
 Route::resource('sponsors', SponsorController::class)->only(['index', 'show']);
-Route::get('/statusRequestSystem', [RequestsController::class, 'isRequestSystemActive']);
-Route::post('pedidos', [RequestsController::class, 'store']);
+Route::get('/statusRequestSystem', [RequestsController::class, 'currentRequestProgram']);
+Route::post('/pedidos', [RequestsController::class, 'store']);
 Route::get('login',  [AuthController::class, 'login'])->name('login');;
 Route::get('/program', [RequestsController::class, 'searchProgram']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::get('/top10', [Top10Controller::class, 'index']);
 Route::post('/top10/vote/{id}', [Top10Controller::class, 'vote']);
+Route::get('/banners', [BannerController::class, 'publicIndex']);
+Route::get('programs/unique', [TimetableController::class, 'uniquePrograms']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -32,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('requests', RequestsController::class);
         Route::resource('users', UsersController::class);
         Route::resource('sponsors', SponsorController::class)->except(['index', 'show']);
+        Route::resource('banner', BannerController::class);
     });
 
     Route::middleware('checkUserLevel:manager')->group(function () {

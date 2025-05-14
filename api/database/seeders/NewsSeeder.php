@@ -25,6 +25,7 @@ class NewsSeeder extends Seeder
                 'category' => ['Música', 'Eventos', 'Entrevistas'][rand(0,2)],
                 'highlight' => $i % 2 == 0,
                 'image_highlight' => $i % 2 == 0 ? "https://via.placeholder.com/1200x400?text=DESTAQUE+$i" : null,
+                'slug' => "noticia-top-$i",
             ]);
         }
     }

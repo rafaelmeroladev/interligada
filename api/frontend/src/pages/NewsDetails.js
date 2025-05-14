@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../api/axios';
 import Top10 from '../components/Top10';
 
 const imageBase = process.env.REACT_APP_API_URL_IMAGE;
 const apiBase = process.env.REACT_APP_API_URL;
 
 function NewsDetails() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [noticia, setNoticia] = useState(null);
   const navigate = useNavigate();
 
 
   useEffect(() => {
-    axios.get(`${apiBase}/notices/${id}`)
+    axios.get(`${apiBase}/notices/${slug}`)
       .then(res => setNoticia(res.data))
       .catch(err => console.error('Erro ao buscar notícia:', err));
-  }, [id]);
+  }, [slug]);
 
   if (!noticia) return <p className="text-center mt-5">Carregando notícia...</p>;
 
@@ -29,7 +29,7 @@ function NewsDetails() {
               <Link to="/">Início</Link>
             </li>
             <li className="breadcrumb-item">
-              <Link to="/noticias">Notícias</Link>
+              <Link to="/noticies">Notícias</Link>
             </li>
             <li className="breadcrumb-item active" aria-current="page">
               {noticia?.title?.slice(0, 40)}...

@@ -13,11 +13,12 @@ class Sponsor extends Model
     protected $table = 'sponsors';
 
     protected $fillable = [
-        'nome', 'link', 'ref', 'imagem', 'expirated_date', 'status'
+        'nome', 'link', 'ref', 'imagem', 'expirated_date', 'status', 'position'
     ];
 
     protected $casts = [
         'expirated_date' => 'date',
         'status' => 'string',
+        'position'      => 'integer',
     ];
 }

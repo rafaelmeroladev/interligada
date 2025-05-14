@@ -20,11 +20,23 @@ class TimetableController extends Controller
         return response()->json($timetablesAll);
     }
 
-    public function showDay()
+    public function showDay(Request $request)
     {
-        $dayOfWeek = Carbon::now()->format('l');
-        $timetables = Timetable::where('day_week', $dayOfWeek)->orderBy('hour_finish')->get();
+        $dayOfWeek = $request->query('day', Carbon::now()->format('l'));
+        $timetables = Timetable::where('day_week', $dayOfWeek)
+            ->orderBy('hour_start')
+            ->get();
+    
         return response()->json($timetables);
+    }
+
+    public function uniquePrograms()
+    {
+        $programs = Timetable::select('program_name', 'description', 'imagem')
+            ->groupBy('program_name', 'description', 'imagem')
+            ->get();
+
+        return response()->json($programs);
     }
 
     public function store(Request $request)
