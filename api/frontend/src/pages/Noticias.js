@@ -6,10 +6,19 @@ function Noticias() {
   const [noticias, setNoticias] = useState([]);
   const imageBase = process.env.REACT_APP_API_URL_IMAGE;
 
-  useEffect(() => {
+   useEffect(() => {
     const carregarNoticias = async () => {
-      const data = await getNews();
-      setNoticias(data);
+      try {
+        const resp = await getNews();
+        const list = Array.isArray(resp)
+          ? resp
+          : Array.isArray(resp.data)
+            ? resp.data
+            : [];
+        setNoticias(list);
+      } catch (err) {
+        console.error('Erro ao carregar notícias:', err);
+      }
     };
     carregarNoticias();
   }, []);
@@ -19,7 +28,7 @@ function Noticias() {
       <h2 className="mb-4">📰 Últimas Notícias</h2>
       <div className="row">
         {noticias.map(n => (
-          <Link to={`/noticias/${n.id}`} className="text-decoration-none text-dark">
+          <Link to={`/notices/${n.id}`} className="text-decoration-none text-dark">
           <div className="col-md-6 mb-3" key={n.id}>
             <div className="card h-100 shadow-sm">
               {n.image && (

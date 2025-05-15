@@ -16,11 +16,11 @@ function App() {
         <Route path="/" element={<Layout />}>
           {/* Páginas públicas */}
           <Route index element={<Home />} />
-          <Route path="noticias" element={<Noticias />} />
+          <Route path="notices" element={<Noticias />} />
           <Route path="pedidos" element={<div>Pedidos</div>} />
           <Route path="programacao" element={<Programacao />} />
           <Route path="contato" element={<div>Contato</div>} />
-          <Route path="noticias/:id" element={<NewsDetails />} />
+          <Route path="/notices/:slug" element={<NewsDetails />} />
           {/* Login + Admin */}
           <Route path="login" element={<Login />} />
           <Route path="admin" element={

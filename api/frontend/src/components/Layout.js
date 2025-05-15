@@ -11,7 +11,7 @@ function Layout() {
           <h1 className="h4 m-0">Interligada Hits 🎵</h1>
           <nav>
             <Link to="/" className="text-white me-3">Home</Link>
-            <Link to="/noticias" className="text-white me-3">Notícias</Link>
+            <Link to="/notices" className="text-white me-3">Notícias</Link>
             <Link to="/programacao" className="text-white me-3">Programação</Link>
             <Link to="/pedidos" className="text-white me-3">Pedidos</Link>
             <Link to="/contato" className="text-white">Contato</Link>

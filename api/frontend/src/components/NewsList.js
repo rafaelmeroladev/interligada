@@ -34,6 +34,13 @@ export default function NewsList() {
     fetchNews();
   }, []);
 
+    console.log(news);
+
+   function excerpt(text, length = 80) {
+    if (!text) return '';
+    return text.length > length ? text.slice(0, length) + '...' : text;
+  }
+
   return (
     <div className="row row-cols-1 row-cols-md-3 g-4">
       {loading ? (
@@ -66,7 +73,7 @@ export default function NewsList() {
               <div className="card-body">
                 <h5 className="card-title">{item.title}</h5>
                 <p className="card-text text-muted small">
-                  {item.description?.slice(0, 100)}...
+                   {excerpt(item.text, 50)}
                 </p>
                 {/* Link by slug instead of ID */}
                 <Link to={`/notices/${item.slug}`} className="btn btn-outline-primary btn-sm">

@@ -19,7 +19,7 @@ function NewsDetails() {
   }, [slug]);
 
   if (!noticia) return <p className="text-center mt-5">Carregando notícia...</p>;
-
+  console.log({noticia});
   return (
     <div className="container mt-4">
       <div className="mb-3 d-flex justify-content-between align-items-center">
@@ -32,7 +32,7 @@ function NewsDetails() {
               <Link to="/noticies">Notícias</Link>
             </li>
             <li className="breadcrumb-item active" aria-current="page">
-              {noticia?.title?.slice(0, 40)}...
+              {noticia?.data.title?.slice(0, 40)}...
             </li>
           </ol>
         </nav>
@@ -44,23 +44,23 @@ function NewsDetails() {
       <div className="row">
         {/* Conteúdo principal */}
         <div className="col-md-8">
-          {noticia.image && (
+          {noticia.data.image && (
             <img
-              src={`${imageBase}${noticia.image}`}
+              src={`${imageBase}${noticia.data.image}`}
               className="img-fluid mb-3"
-              alt={noticia.title}
+              alt={noticia.data.title}
             />
           )}
           <h2>{noticia.title}</h2>
           <small className="text-muted">
-            Publicado em: {new Date(noticia.date_time).toLocaleDateString()}
+            Publicado em: {new Date(noticia.data.date_time).toLocaleDateString()}
           </small>
           <hr />
-          <p style={{ whiteSpace: 'pre-line' }}>{noticia.text}</p>
+          <p style={{ whiteSpace: 'pre-line' }}>{noticia.data.text}</p>
 
-          {noticia.audio && (
+          {noticia.data.audio && (
             <div className="mt-4">
-              <audio controls src={`${imageBase}${noticia.audio}`} />
+              <audio controls src={`${imageBase}${noticia.data.audio}`} />
             </div>
           )}
         </div>
