@@ -34,7 +34,7 @@ export default function NewsList() {
     fetchNews();
   }, []);
 
-    console.log(news);
+   // console.log(news);
 
    function excerpt(text, length = 80) {
     if (!text) return '';

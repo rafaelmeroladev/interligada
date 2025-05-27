@@ -10,5 +10,7 @@ class Banner extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['title', 'description', 'image', 'link', 'active', 'order'];
+    protected $table = 'banners';
+
+    protected $fillable = ['title', 'description', 'image', 'url', 'active', 'order', 'text_position','show_title','show_description'];
 }

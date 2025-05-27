@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import Top10 from '../components/Top10';
+import SponsorsBanners from '../components/SponsorsBanners';
+import FloatingRequestButton from '../components/FloatingRequestButton';
 
 const imageBase = process.env.REACT_APP_API_URL_IMAGE;
 const apiBase = process.env.REACT_APP_API_URL;
@@ -68,6 +70,15 @@ function NewsDetails() {
         {/* Sidebar: Top 10 */}
         <div className="col-md-4">
           <Top10 />
+          <SponsorsBanners slot="medium" />
+        </div>
+      </div>
+        <div>
+              <FloatingRequestButton />
+        </div>
+      <div className="row">
+        <div className="col-12 col-md-12">
+            <SponsorsBanners slot="small" />
         </div>
       </div>
     </div>
