@@ -10,6 +10,7 @@ use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\Top10Controller;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\SpeakerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,7 @@ use App\Http\Controllers\BannerController;
 
 // Authentication
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('admin/login', [AuthController::class, 'loginAdmin']);
 
 // News public
 Route::get('notices',        [NewsController::class, 'index']);
@@ -53,6 +55,9 @@ Route::get('program',             [RequestsController::class, 'searchProgram']);
 |--------------------------------------------------------------------------
 | Rotas que exigem autenticação via Sanctum.
 */
+Route::middleware('auth:sanctum')
+     ->get('admin/user', [AuthController::class, 'me']);
+
 Route::middleware('auth:sanctum')->group(function() {
     // Logout
     Route::post('logout', [AuthController::class, 'logout']);
@@ -124,4 +129,19 @@ Route::middleware('auth:sanctum')->group(function() {
         Route::resource('horarios', TimetableController::class)
              ->only(['index','show']);
     });
+
+    Route::get('speaker/request-programs', 
+        [SpeakerController::class, 'listPrograms']);
+
+    // cadastra o próprio programa (ativa o sistema de pedidos)
+    Route::post('speaker/request-programs', 
+        [SpeakerController::class, 'storeProgram']);
+
+    // alterna online/offline (status) do programa
+    Route::patch('speaker/request-programs/{id}/status', 
+        [SpeakerController::class, 'toggleStatus']);
+
+    // lista os pedidos não lidos daquele programa
+    Route::get('speaker/request-programs/{id}/requests', 
+        [SpeakerController::class, 'listRequests']);
 });
