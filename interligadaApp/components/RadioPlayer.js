@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
-import TrackPlayer, { usePlaybackState, useProgress } from 'react-native-track-player';
+import TrackPlayer, { usePlaybackState, Capability } from 'react-native-track-player';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { STREAMING_URL, SONG_INFO_URL } from '@env';
@@ -28,11 +28,14 @@ const RadioPlayer = ({ resetKey }) => {
         await TrackPlayer.updateOptions({
           stopWithApp: false,
           capabilities: [
-            TrackPlayer.CAPABILITY_PLAY,
-            TrackPlayer.CAPABILITY_PAUSE,
-            TrackPlayer.CAPABILITY_STOP,
+            Capability.Play,
+            Capability.Pause,
+            Capability.Stop,
           ],
-          compactCapabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE],
+          compactCapabilities: [
+            Capability.Play,
+            Capability.Pause,
+          ],
         });
 
         await TrackPlayer.reset();
