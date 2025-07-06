@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
-import TrackPlayer, { usePlaybackState, Capability } from 'react-native-track-player';
+import TrackPlayer, { usePlaybackState, Capability, State } from 'react-native-track-player';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { STREAMING_URL, SONG_INFO_URL } from '@env';
@@ -84,13 +84,14 @@ const RadioPlayer = ({ resetKey }) => {
     return () => clearInterval(intervalId);
   }, [resetKey]);
 
-  const togglePlayback = async () => {
-    if (playbackState === TrackPlayer.STATE_PLAYING) {
-      await TrackPlayer.pause();
+
+    const togglePlayback = async () => {
+    if (playbackState === State.Playing) {
+        await TrackPlayer.pause();
     } else {
-      await TrackPlayer.play();
+        await TrackPlayer.play();
     }
-  };
+    };
 
   return (
     <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
