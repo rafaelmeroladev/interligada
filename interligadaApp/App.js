@@ -1,6 +1,8 @@
 import 'react-native-gesture-handler'; // Adicione esta linha no topo
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpacity,Dimensions, StatusBar  } from 'react-native';
+import TrackPlayer from 'react-native-track-player';
+import trackService from './Service';
 import { Button, Icon } from 'react-native-elements';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
@@ -11,10 +13,13 @@ import Timetable from './components/Timetable';
 import { LinearGradient } from 'expo-linear-gradient'; // Certifique-se de que esta linha está correta
 import PartnersBanner from './components/PartnersBanner';
 import { PixelRatio } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const  widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
 const scaleFont = (size) => size / PixelRatio.getFontScale();
+TrackPlayer.registerPlaybackService(() => trackService);
 
 export default function App() {
     const [modalVisible, setModalVisible] = useState(false);
@@ -76,83 +81,85 @@ export default function App() {
     return (
         <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFDD58" />    
-            <View style={styles.container}>
-            <SponsorBanners resetKey={resetKey} style={styles.sponsorApp} />
-                <RadioPlayer  resetKey={resetKey} />
-                <LinearGradient colors={['#000000', '#302F2F']} style={styles.menu}>
-                    <Button 
-                        type="clear"
-                        icon={<Icon name="home" size={32} color="#FFC655" />}
-                        title="Início"
-                        onPress={resetApp}
-                        labelStyle={{ paddingVertical: 2 }}
-                        titleStyle={styles.titleStyle} 
-                        accessibilityLabel="Início"
-                    />
-                    <Button
-                        type="clear"
-                        icon={<Icon name="queue-music" size={32} color="#FFC655" />}
-                        title="Pedidos"
-                        onPress={() => openModal('requests')}
-                        titleStyle={styles.titleStyle} 
-                        accessibilityLabel="Pedidos"
-                    />
-                    <Button 
-                        type="clear"
-                        icon={<Icon name="event" size={32} color="#FFC655" />}
-                        title="Programação"
-                        onPress={() => openModal('timetable')}
-                        titleStyle={styles.titleStyle} 
-                        accessibilityLabel="Programação"
-                    />
-                </LinearGradient>
-                
-                <Modal
-                    transparent={true}
-                    animationType="slide"
-                    visible={modalVisible}
-                    onRequestClose={closeModal}
-                >
-                    <View style={styles.modalContainer}>
-                        <View style={[styles.modalContent, currentModal === 'requests' ? styles.modalContentRequests : styles.modalContentTimetable]}>
-                            {currentModal === 'requests' && <Requests onClose={closeModal} showSuccessPopup={showSuccessPopup} />}
-                            {currentModal === 'timetable' && <Timetable />}
-                            <TouchableOpacity 
-                                style={styles.closeButton}
-                                titleStyle={styles.closeButtonTitle}
-                                onPress={closeModal}>
-                                <Text style={styles.closeButtonTitle}>Fechar</Text>
-                            </TouchableOpacity>
+            {/* <View style={styles.container}> */}
+            <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+                    <SponsorBanners resetKey={resetKey} style={styles.sponsorApp} />
+                    <RadioPlayer  resetKey={resetKey} />
+                    <LinearGradient colors={['#000000', '#302F2F']} style={styles.menu}>
+                        <Button 
+                            type="clear"
+                            icon={<Icon name="home" size={32} color="#FFC655" />}
+                            title="Início"
+                            onPress={resetApp}
+                            labelStyle={{ paddingVertical: 2 }}
+                            titleStyle={styles.titleStyle} 
+                            accessibilityLabel="Início"
+                        />
+                        <Button
+                            type="clear"
+                            icon={<Icon name="queue-music" size={32} color="#FFC655" />}
+                            title="Pedidos"
+                            onPress={() => openModal('requests')}
+                            titleStyle={styles.titleStyle} 
+                            accessibilityLabel="Pedidos"
+                        />
+                        <Button 
+                            type="clear"
+                            icon={<Icon name="event" size={32} color="#FFC655" />}
+                            title="Programação"
+                            onPress={() => openModal('timetable')}
+                            titleStyle={styles.titleStyle} 
+                            accessibilityLabel="Programação"
+                        />
+                    </LinearGradient>
+                    
+                    <Modal
+                        transparent={true}
+                        animationType="slide"
+                        visible={modalVisible}
+                        onRequestClose={closeModal}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={[styles.modalContent, currentModal === 'requests' ? styles.modalContentRequests : styles.modalContentTimetable]}>
+                                {currentModal === 'requests' && <Requests onClose={closeModal} showSuccessPopup={showSuccessPopup} />}
+                                {currentModal === 'timetable' && <Timetable />}
+                                <TouchableOpacity 
+                                    style={styles.closeButton}
+                                    titleStyle={styles.closeButtonTitle}
+                                    onPress={closeModal}>
+                                    <Text style={styles.closeButtonTitle}>Fechar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-                
-                <Modal
-                    transparent={true}
-                    animationType="slide"
-                    visible={messageModalVisible}
-                    onRequestClose={closeMessageModal}
-                >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalText}>
-                                Nenhum locutor no ar no momento, confira a nossa programação.
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.closeButton}
-                                onPress={closeMessageModal}>
-                                <Text style={styles.closeButtonTitle}>Fechar</Text>
-                            </TouchableOpacity>
+                    </Modal>
+                    
+                    <Modal
+                        transparent={true}
+                        animationType="slide"
+                        visible={messageModalVisible}
+                        onRequestClose={closeMessageModal}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalText}>
+                                    Nenhum locutor no ar no momento, confira a nossa programação.
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.closeButton}
+                                    onPress={closeMessageModal}>
+                                    <Text style={styles.closeButtonTitle}>Fechar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-                
-                {successPopupVisible && (
-                    <View style={styles.successPopup}>
-                        <Text style={styles.successPopupText}>Mensagem enviado com sucesso!</Text>
-                    </View>
-                )}
-            </View>
+                    </Modal>
+                    
+                    {successPopupVisible && (
+                        <View style={styles.successPopup}>
+                            <Text style={styles.successPopupText}>Mensagem enviado com sucesso!</Text>
+                        </View>
+                    )}
+                </SafeAreaView>
+            {/* </View> */}
         </LinearGradient>
     );
 }
@@ -170,7 +177,6 @@ const styles = StyleSheet.create({
         height: widthScreen*0.09,
     },
     container: {
-        position: 'static',
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -198,8 +204,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         width: widthScreen,
         paddingVertical: 12,
+        paddingBottom: 30,
         borderWidth: 0.5,
         borderColor: '#FFC655',
+        backgroundColor: '#000',
     },
     modalContainer: {
         flex: 1,

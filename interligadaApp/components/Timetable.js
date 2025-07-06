@@ -96,7 +96,7 @@ const Timetable = ({ resetKey }) => {
             flatListRef.current.scrollToIndex({
                 index: newIndex,
                 animated: true,
-                viewPosition: 0.5
+                viewPosition: 0.4
             });
             setScrollIndex(newIndex);
         }
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         width: width * 0.78,
-        height: height * 0.4,
+        height: height * 0.38,
         marginHorizontal: itemSpacing / 2,
         justifyContent: 'center',
         alignItems: 'center',
