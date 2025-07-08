@@ -14,6 +14,7 @@ import com.facebook.soloader.SoLoader
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
+import com.doublesymmetry.trackplayer.TrackPlayer;
 
 class MainApplication : Application(), ReactApplication {
 
@@ -45,6 +46,7 @@ class MainApplication : Application(), ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
+    TrackPlayer.registerPlaybackService(() -> "com.interligadahitsapp.trackPlayerService");
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
   }
 
