@@ -37,7 +37,8 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
-    "styled-components": "^6.1.11"
+    "styled-components": "^6.1.11",
+    "expo-keep-awake": "~14.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
