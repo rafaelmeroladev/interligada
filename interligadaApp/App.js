@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler'; // Adicione esta linha no topo
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal, Text, Alert,Button as RNButton, TouchableOpacity,Dimensions, StatusBar  } from 'react-native';
-import TrackPlayer from 'react-native-track-player';
+//import TrackPlayer from 'react-native-track-player';
 import trackService from './Service';
 import { Button, Icon } from 'react-native-elements';
 import axios from 'axios';
@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const  widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
 const scaleFont = (size) => size / PixelRatio.getFontScale();
-TrackPlayer.registerPlaybackService(() => trackService);
+//TrackPlayer.registerPlaybackService(() => trackService);
 
 export default function App() {
     const [modalVisible, setModalVisible] = useState(false);
