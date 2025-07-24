@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
-// import TrackPlayer, { usePlaybackState, Capability, State } from 'react-native-track-player';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 import { STREAMING_URL, SONG_INFO_URL } from '@env';
 import axios from 'axios';
 
@@ -13,40 +13,33 @@ const widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
 
 const RadioPlayer = ({ resetKey }) => {
-  // const playbackState = usePlaybackState();
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState('');
   const [currentArtist, setCurrentArtist] = useState('');
   const [cover, setCover] = useState('');
   const [error, setError] = useState('');
 
+  const sound = useRef(new Audio.Sound());
+
   useEffect(() => {
     const setup = async () => {
       setIsLoading(true);
       try {
-        await TrackPlayer.setupPlayer();
-        await TrackPlayer.updateOptions({
-          stopWithApp: false,
-          // capabilities: [
-          //   Capability.Play,
-          //   Capability.Pause,
-          //   Capability.Stop,
-          // ],
-          // compactCapabilities: [
-          //   Capability.Play,
-          //   Capability.Pause,
-          // ],
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
         });
 
-        await TrackPlayer.reset();
-        await TrackPlayer.add({
-          id: 'interligada-stream',
-          url: STREAMING_URL,
-          title: 'Interligada Hits',
-          artist: 'Ao Vivo',
-          artwork: cover || 'https://radiointerligada.com/logo.png',
-        });
-        await TrackPlayer.play();
+        await sound.current.loadAsync(
+          { uri: STREAMING_URL },
+          { shouldPlay: true }
+        );
+        setIsPlaying(true);
       } catch (e) {
         console.error('Erro ao iniciar o player:', e);
         setError('Erro ao iniciar o player.');
@@ -58,7 +51,7 @@ const RadioPlayer = ({ resetKey }) => {
     setup();
 
     return () => {
-      TrackPlayer.destroy();
+      sound.current.unloadAsync();
     };
   }, [resetKey]);
 
@@ -84,14 +77,19 @@ const RadioPlayer = ({ resetKey }) => {
     return () => clearInterval(intervalId);
   }, [resetKey]);
 
-
-    const togglePlayback = async () => {
-    // if (playbackState === State.Playing) {
-    //     await TrackPlayer.pause();
-    // } else {
-    //     await TrackPlayer.play();
-    // }
-    };
+  const togglePlayback = async () => {
+    try {
+      if (isPlaying) {
+        await sound.current.pauseAsync();
+        setIsPlaying(false);
+      } else {
+        await sound.current.playAsync();
+        setIsPlaying(true);
+      }
+    } catch (e) {
+      console.error('Erro ao alternar reprodução:', e);
+    }
+  };
 
   return (
     <LinearGradient colors={['#FFDD58', '#FFC655']} style={styles.gradient}>
@@ -115,7 +113,7 @@ const RadioPlayer = ({ resetKey }) => {
           disabled={isLoading}
         >
           <Icon
-            // name={playbackState === TrackPlayer.STATE_PLAYING ? 'stop' : 'play'}
+            name={isPlaying ? 'stop' : 'play'}
             size={30}
             color="#000"
           />

@@ -2,7 +2,7 @@
   "expo": {
     "name": "interligadaHitsApp",
     "slug": "interligadahitsapp",
-    "version": "2.0.1",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,27 +11,28 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFC655"
     },
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.interligadahits.interligadaHitsApp",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ]
+        "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
       "package": "com.interligadahits.interligadaHitsApp",
       "permissions": [
         "WAKE_LOCK",
-        "INTERNET"
+        "INTERNET",
+        "FOREGROUND_SERVICE"
       ],
       "blockedPermissions": ["RECORD_AUDIO"],
-      "versionCode": 3
+      "versionCode": 10,
+      "services": {
+        "backgroundAudio": {
+          "mode": "playback"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
