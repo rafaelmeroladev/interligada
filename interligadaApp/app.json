@@ -21,17 +21,17 @@
     },
     "android": {
       "package": "com.interligadahits.interligadaHitsApp",
+      "versionCode": 10,
       "permissions": [
         "WAKE_LOCK",
         "INTERNET",
         "FOREGROUND_SERVICE"
       ],
-      "blockedPermissions": ["RECORD_AUDIO"],
-      "versionCode": 10,
-      "services": {
-        "backgroundAudio": {
-          "mode": "playback"
-        }
+      "blockedPermissions": ["RECORD_AUDIO"]
+    },
+    "services": {
+      "backgroundAudio": {
+        "mode": "playback"
       }
     },
     "web": {
