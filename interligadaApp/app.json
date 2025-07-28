@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.interligadahits.interligadaHitsApp",
-      "versionCode": 11,
+      "versionCode": 13,
       "versionName": "3.0.2",
       "permissions": ["WAKE_LOCK", "INTERNET", "FOREGROUND_SERVICE"],
       "blockedPermissions": ["RECORD_AUDIO"]
