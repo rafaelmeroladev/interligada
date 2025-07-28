@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, AppState } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -19,7 +19,6 @@ const RadioPlayer = ({ resetKey }) => {
   const [currentArtist, setCurrentArtist] = useState('');
   const [cover, setCover] = useState('');
   const [error, setError] = useState('');
-
   const sound = useRef(new Audio.Sound());
 
   useEffect(() => {
@@ -31,8 +30,6 @@ const RadioPlayer = ({ resetKey }) => {
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
         });
 
         await sound.current.loadAsync(
@@ -54,6 +51,21 @@ const RadioPlayer = ({ resetKey }) => {
       sound.current.unloadAsync();
     };
   }, [resetKey]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (nextAppState === 'active' && sound.current) {
+        const status = await sound.current.getStatusAsync();
+        if (!status.isPlaying && status.isLoaded) {
+          // Ele estava pausado ao voltar — então retoma
+          await sound.current.playAsync();
+          setIsPlaying(true);
+        }
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     const fetchCurrentSong = async () => {
@@ -79,11 +91,20 @@ const RadioPlayer = ({ resetKey }) => {
 
   const togglePlayback = async () => {
     try {
-      if (isPlaying) {
-        await sound.current.pauseAsync();
-        setIsPlaying(false);
+      if (!sound.current) return;
+
+      const status = await sound.current.getStatusAsync();
+
+      if (status.isLoaded) {
+        if (status.isPlaying) {
+          await sound.current.pauseAsync();
+          setIsPlaying(false);
+        } else {
+          await sound.current.playAsync();
+          setIsPlaying(true);
+        }
       } else {
-        await sound.current.playAsync();
+        await sound.current.loadAsync({ uri: STREAMING_URL }, { shouldPlay: true });
         setIsPlaying(true);
       }
     } catch (e) {
@@ -112,11 +133,7 @@ const RadioPlayer = ({ resetKey }) => {
           onPress={togglePlayback}
           disabled={isLoading}
         >
-          <Icon
-            name={isPlaying ? 'stop' : 'play'}
-            size={30}
-            color="#000"
-          />
+          <Icon name={isPlaying ? 'stop' : 'play'} size={30} color="#000" />
         </TouchableOpacity>
       </View>
       <Image source={logoImage} style={styles.logoImage} />
@@ -125,11 +142,7 @@ const RadioPlayer = ({ resetKey }) => {
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   bgPlayer: {
     backgroundColor: 'rgba(48, 47, 47, 0.95)',
     padding: 20,
@@ -143,20 +156,18 @@ const styles = StyleSheet.create({
     width: widthScreen * 0.60,
     height: widthScreen * 0.8,
     alignItems: 'center',
-    position: 'relative',
+    position: 'relative'
   },
   container: {
     justifyContent: 'center',
-    alignItems: 'left',
+    alignItems: 'left'
   },
   cover: {
     width: widthScreen * 0.5,
     height: widthScreen * 0.5,
     margin: 10,
     borderRadius: 10,
-    resizeMode: 'cover',
-    alignItems: 'center',
-    justifyContent: 'center',
+    resizeMode: 'cover'
   },
   songText: {
     marginBottom: 0,
@@ -165,7 +176,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingStart: 10,
     width: widthScreen * 0.56,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   artistText: {
     textAlign: 'left',
@@ -175,13 +186,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingStart: 10,
     width: widthScreen * 0.56,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   errorText: {
     color: 'red',
     fontSize: 12,
     marginTop: 0,
-    marginBottom: 0,
+    marginBottom: 0
   },
   playPauseButton: {
     position: 'absolute',
@@ -196,7 +207,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
-    elevation: 5,
+    elevation: 5
   },
   loadingOverlay: {
     position: 'absolute',
@@ -208,12 +219,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(48, 47, 47, 0.8)',
     borderRadius: 20,
-    zIndex: 1,
+    zIndex: 1
   },
   indicatorText: {
     marginBottom: 10,
     fontSize: 16,
-    color: '#FFF',
+    color: '#FFF'
   },
   headphoneImage: {
     position: 'absolute',
@@ -221,7 +232,7 @@ const styles = StyleSheet.create({
     width: widthScreen * 1.05,
     height: heightScreen,
     elevation: 9,
-    resizeMode: 'contain',
+    resizeMode: 'contain'
   },
   logoImage: {
     position: 'absolute',
@@ -230,8 +241,8 @@ const styles = StyleSheet.create({
     height: widthScreen,
     elevation: 15,
     zIndex: 1,
-    resizeMode: 'contain',
-  },
+    resizeMode: 'contain'
+  }
 });
 
 export default RadioPlayer;
