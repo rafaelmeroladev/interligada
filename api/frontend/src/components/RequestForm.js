@@ -31,7 +31,7 @@ function RequestForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      await axios.post(`${api}/pedidos`, form, {  withCredentials: true});
+      await axios.post(`${api}/pedidos`, form, { withCredentials: true });
       setSubmitted(true);
       setForm({ type: form.type, email: '', phone: '', name: '', city: '', state: '', message: '' });
     } catch (err) {
@@ -57,87 +57,91 @@ function RequestForm() {
     <div className="card shadow-sm">
       <div className="card-body">
         <form onSubmit={handleSubmit}>
-        <div className="mb-2">
+          <div className="mb-2">
             <select
-                className="form-select"
-                name="type"
-                value={form.type}
-                onChange={handleChange}
+              className="form-select"
+              name="type"
+              value={form.type}
+              onChange={handleChange}
             >
-                <option value="request">🎵 Pedido de Música</option>
-                <option value="message">✉️ Enviar Mensagem</option>
+              {/* Removi emojis para evitar a regra jsx-a11y/accessible-emoji dentro do <option> */}
+              <option value="request">Pedido de Música</option>
+              <option value="message">Enviar Mensagem</option>
             </select>
-         </div>
-         <div className="mb-2">
-            <input
-                type="text"
-                className="form-control"
-                name="name"
-                placeholder="Seu nome"
-                value={form.name}
-                onChange={handleChange}
-                required
-            />
-        </div>
-         <div className="mb-2">
-            <input
-                type="email"
-                className="form-control"
-                name="email"
-                placeholder="Seu e-mail"
-                value={form.email}
-                onChange={handleChange}
-                required
-            />
-        </div>
+          </div>
 
-        <div className="mb-2">
+          <div className="mb-2">
             <input
-                type="text"
-                className="form-control"
-                name="phone"
-                placeholder="Seu telefone"
-                value={form.phone}
-                onChange={handleChange}
-                required
+              type="text"
+              className="form-control"
+              name="name"
+              placeholder="Seu nome"
+              value={form.name}
+              onChange={handleChange}
+              required
             />
-        </div>
+          </div>
 
-        <div className="mb-2">
+          <div className="mb-2">
             <input
-                type="text"
-                className="form-control"
-                name="city"
-                placeholder="Sua cidade"
-                value={form.city}
-                onChange={handleChange}
-                required
+              type="email"
+              className="form-control"
+              name="email"
+              placeholder="Seu e-mail"
+              value={form.email}
+              onChange={handleChange}
+              required
             />
-        </div>
+          </div>
 
-        <div className="mb-2">
+          <div className="mb-2">
             <input
-                type="text"
-                className="form-control"
-                name="state"
-                placeholder="Seu estado"
-                value={form.state}
-                onChange={handleChange}
-                required
+              type="text"
+              className="form-control"
+              name="phone"
+              placeholder="Seu telefone"
+              value={form.phone}
+              onChange={handleChange}
+              required
             />
-        </div>
+          </div>
 
-        <div className="mb-2">
+          <div className="mb-2">
+            <input
+              type="text"
+              className="form-control"
+              name="city"
+              placeholder="Sua cidade"
+              value={form.city}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-2">
+            <input
+              type="text"
+              className="form-control"
+              name="state"
+              placeholder="Seu estado"
+              value={form.state}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-2">
             <textarea
-                className="form-control"
-                name="message"
-                placeholder="Mensagem / Dedicação"
-                rows="3"
-                value={form.message}
-                onChange={handleChange}
-                required
+              className="form-control"
+              name="message"
+              placeholder="Mensagem / Dedicação"
+              rows="3"
+              value={form.message}
+              onChange={handleChange}
+              required
             />
-        </div>
+          </div>
+
           <button type="submit" className="btn btn-primary w-100">
             Enviar Pedido
           </button>

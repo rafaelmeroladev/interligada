@@ -1,35 +1,56 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import './Layout.css'; // cria esse arquivo pra customização extra
+import './Layout.css';
 
-function Layout() {
+/**
+ * Layout com "hero slot":
+ * - A página define o hero via setHero (Outlet context).
+ * - O menu fica DEPOIS do hero e é sticky quando rola.
+ */
+export default function Layout() {
+  const [hero, setHero] = useState(null);
+
+  // Passa setHero para as páginas via context do Outlet
+  const outletCtx = useMemo(() => ({ setHero }), []);
+
   return (
     <>
-      {/* HEADER */}
-      <header className="bg-dark text-white py-3 sticky-top shadow">
-        <div className="container d-flex justify-content-between align-items-center">
-          <h1 className="h4 m-0">Interligada Hits 🎵</h1>
-          <nav>
-            <Link to="/" className="text-white me-3">Home</Link>
-            <Link to="/notices" className="text-white me-3">Notícias</Link>
-            <Link to="/programacao" className="text-white me-3">Programação</Link>
-            <Link to="/pedidos" className="text-white me-3">Pedidos</Link>
-            <Link to="/contato" className="text-white">Contato</Link>
-          </nav>
+      {/* HERO DA PÁGINA (opcional) */}
+      {hero && (
+        <div className="hero-wrapper">
+          {hero}
         </div>
-      </header>
+      )}
 
-      {/* CONTEÚDO PRINCIPAL */}
+      {/* MENU STICKY (fica entre hero e conteúdo) */}
+      <nav className="main-nav sticky-top shadow-sm">
+        <div className="container d-flex justify-content-between align-items-center">
+          <h1 className="h5 m-0">
+            Interligada Hits{' '}
+            <span role="img" aria-label="nota musical">🎵</span>
+          </h1>
+          <div className="nav-links">
+            <Link to="/" className="nav-link">Home</Link>
+            <Link to="/notices" className="nav-link">Notícias</Link>
+            <Link to="/programacao" className="nav-link">Programação</Link>
+            <Link to="/pedidos" className="nav-link">Pedidos</Link>
+            <Link to="/contato" className="nav-link">Contato</Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* CONTEÚDO */}
       <main>
-        <Outlet />
+        <Outlet context={outletCtx} />
       </main>
 
-      {/* PLAYER FIXO */}
-      <footer className="bg-black text-white py-3 text-center">
-        <small>🎶 Tocando agora: <b>Interligada Hits - Sua rádio conectada</b></small>
+      {/* FOOTER / PLAYER */}
+      <footer className="site-footer">
+        <small>
+          <span role="img" aria-label="música tocando">🎶</span>{' '}
+          Tocando agora: <b>Interligada Hits - Sua rádio conectada</b>
+        </small>
       </footer>
     </>
   );
 }
-
-export default Layout;
