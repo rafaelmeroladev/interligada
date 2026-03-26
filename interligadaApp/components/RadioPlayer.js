@@ -1,10 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, AppState } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import {
+  View, Text, Image, StyleSheet, TouchableOpacity,
+  Dimensions, ActivityIndicator, NativeModules, NativeEventEmitter
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Audio } from 'expo-av';
-import { STREAMING_URL, SONG_INFO_URL } from '@env';
+import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import axios from 'axios';
+import { STREAMING_URL, SONG_INFO_URL } from '@env';
+
+const { RadioServiceModule } = NativeModules;
+const radioEmitter = RadioServiceModule ? new NativeEventEmitter(RadioServiceModule) : null;
 
 const headphoneImage = require('../assets/headphone.png');
 const logoImage = require('../assets/logo.png');
@@ -13,30 +19,30 @@ const widthScreen = Dimensions.get('window').width;
 const heightScreen = Dimensions.get('window').height;
 
 const RadioPlayer = ({ resetKey }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState('');
   const [currentArtist, setCurrentArtist] = useState('');
   const [cover, setCover] = useState('');
   const [error, setError] = useState('');
-  const sound = useRef(new Audio.Sound());
+  const songRef = useRef({ title: 'Interligada Hits', artist: 'Ao vivo', cover: '' });
+  const isPlayingRef = useRef(false);
+  const player = useAudioPlayer(STREAMING_URL);
 
+  // Configura áudio e inicia foreground service
   useEffect(() => {
     const setup = async () => {
-      setIsLoading(true);
       try {
-        await Audio.setAudioModeAsync({
+        await setAudioModeAsync({
           allowsRecordingIOS: false,
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
         });
-
-        await sound.current.loadAsync(
-          { uri: STREAMING_URL },
-          { shouldPlay: true }
-        );
+        player.play();
+        isPlayingRef.current = true;
         setIsPlaying(true);
+        RadioServiceModule?.startService('Interligada Hits', 'Ao vivo', '', true);
       } catch (e) {
         console.error('Erro ao iniciar o player:', e);
         setError('Erro ao iniciar o player.');
@@ -47,26 +53,36 @@ const RadioPlayer = ({ resetKey }) => {
 
     setup();
 
-    return () => {
-      sound.current.unloadAsync();
-    };
-  }, [resetKey]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      if (nextAppState === 'active' && sound.current) {
-        const status = await sound.current.getStatusAsync();
-        if (!status.isPlaying && status.isLoaded) {
-          // Ele estava pausado ao voltar — então retoma
-          await sound.current.playAsync();
-          setIsPlaying(true);
-        }
+    // Registra listener para toggle vindo da notificação
+    RadioServiceModule?.addListener('onTogglePlayback');
+    const sub = radioEmitter?.addListener('onTogglePlayback', () => {
+      if (isPlayingRef.current) {
+        player.pause();
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+        RadioServiceModule?.updateMetadata(
+          songRef.current.title, songRef.current.artist,
+          songRef.current.cover, false
+        );
+      } else {
+        player.play();
+        isPlayingRef.current = true;
+        setIsPlaying(true);
+        RadioServiceModule?.updateMetadata(
+          songRef.current.title, songRef.current.artist,
+          songRef.current.cover, true
+        );
       }
     });
 
-    return () => subscription.remove();
-  }, []);
+    return () => {
+      sub?.remove();
+      RadioServiceModule?.removeListeners(1);
+      RadioServiceModule?.stopService();
+    };
+  }, [resetKey]);
 
+  // Busca info da música atual
   useEffect(() => {
     const fetchCurrentSong = async () => {
       try {
@@ -74,39 +90,40 @@ const RadioPlayer = ({ resetKey }) => {
         const songData = response.data.playing.current;
         if (!songData.startsWith('|x|')) {
           const [artist, title] = songData.split(' - ');
-          setCurrentSong(title || songData);
-          setCurrentArtist(artist || '');
-          setCover(response.data.song_data.cover);
+          const songTitle = title || songData;
+          const songArtist = artist || '';
+          const coverUrl = response.data.song_data.cover || '';
+          setCurrentSong(songTitle);
+          setCurrentArtist(songArtist);
+          setCover(coverUrl);
+          songRef.current = { title: songTitle, artist: songArtist, cover: coverUrl };
+          RadioServiceModule?.updateMetadata(songTitle, songArtist, coverUrl, isPlayingRef.current);
         }
-      } catch (error) {
-        console.error('Erro ao buscar a música atual:', error);
+      } catch (e) {
+        console.error('Erro ao buscar música atual:', e);
       }
     };
 
     fetchCurrentSong();
-    const intervalId = setInterval(fetchCurrentSong, 10000);
-
-    return () => clearInterval(intervalId);
+    const interval = setInterval(fetchCurrentSong, 10000);
+    return () => clearInterval(interval);
   }, [resetKey]);
 
-  const togglePlayback = async () => {
+  const togglePlayback = () => {
     try {
-      if (!sound.current) return;
-
-      const status = await sound.current.getStatusAsync();
-
-      if (status.isLoaded) {
-        if (status.isPlaying) {
-          await sound.current.pauseAsync();
-          setIsPlaying(false);
-        } else {
-          await sound.current.playAsync();
-          setIsPlaying(true);
-        }
+      if (isPlayingRef.current) {
+        player.pause();
+        isPlayingRef.current = false;
+        setIsPlaying(false);
       } else {
-        await sound.current.loadAsync({ uri: STREAMING_URL }, { shouldPlay: true });
+        player.play();
+        isPlayingRef.current = true;
         setIsPlaying(true);
       }
+      RadioServiceModule?.updateMetadata(
+        songRef.current.title, songRef.current.artist,
+        songRef.current.cover, isPlayingRef.current
+      );
     } catch (e) {
       console.error('Erro ao alternar reprodução:', e);
     }
@@ -124,9 +141,12 @@ const RadioPlayer = ({ resetKey }) => {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <Image source={headphoneImage} style={styles.headphoneImage} />
         <View style={styles.container}>
-          {cover ? <Image source={{ uri: cover }} style={styles.cover} /> : null}
-          <Text style={styles.songText}>{currentSong}</Text>
-          <Text style={styles.artistText}>{currentArtist}</Text>
+          <Image
+            source={cover ? { uri: cover } : logoImage}
+            style={styles.cover}
+          />
+          <Text style={styles.songText} numberOfLines={2}>{currentSong || 'Interligada Hits'}</Text>
+          <Text style={styles.artistText} numberOfLines={1}>{currentArtist || 'Ao vivo'}</Text>
         </View>
         <TouchableOpacity
           style={styles.playPauseButton}
@@ -156,44 +176,35 @@ const styles = StyleSheet.create({
     width: widthScreen * 0.60,
     height: widthScreen * 0.8,
     alignItems: 'center',
-    position: 'relative'
+    position: 'relative',
   },
-  container: {
-    justifyContent: 'center',
-    alignItems: 'left'
-  },
+  container: { justifyContent: 'center', alignItems: 'center' },
   cover: {
-    width: widthScreen * 0.5,
-    height: widthScreen * 0.5,
-    margin: 10,
+    width: widthScreen * 0.48,
+    height: widthScreen * 0.48,
+    marginBottom: 8,
     borderRadius: 10,
-    resizeMode: 'cover'
+    resizeMode: 'cover',
   },
   songText: {
-    marginBottom: 0,
+    marginBottom: 2,
     color: '#FFF',
     fontSize: 13,
     flexWrap: 'wrap',
-    paddingStart: 10,
-    width: widthScreen * 0.56,
-    fontWeight: 'bold'
+    textAlign: 'center',
+    width: widthScreen * 0.52,
+    fontWeight: 'bold',
   },
   artistText: {
-    textAlign: 'left',
+    textAlign: 'center',
     color: '#FFF',
     fontSize: 10,
     marginBottom: 45,
     flexWrap: 'wrap',
-    paddingStart: 10,
-    width: widthScreen * 0.56,
-    fontWeight: 'bold'
+    width: widthScreen * 0.52,
+    fontWeight: 'bold',
   },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginTop: 0,
-    marginBottom: 0
-  },
+  errorText: { color: 'red', fontSize: 12 },
   playPauseButton: {
     position: 'absolute',
     bottom: -widthScreen * 0.09,
@@ -207,32 +218,25 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
-    elevation: 5
+    elevation: 5,
   },
   loadingOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(48, 47, 47, 0.8)',
     borderRadius: 20,
-    zIndex: 1
+    zIndex: 1,
   },
-  indicatorText: {
-    marginBottom: 10,
-    fontSize: 16,
-    color: '#FFF'
-  },
+  indicatorText: { marginBottom: 10, fontSize: 16, color: '#FFF' },
   headphoneImage: {
     position: 'absolute',
     top: -heightScreen * 0.40,
     width: widthScreen * 1.05,
     height: heightScreen,
     elevation: 9,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   logoImage: {
     position: 'absolute',
@@ -241,8 +245,8 @@ const styles = StyleSheet.create({
     height: widthScreen,
     elevation: 15,
     zIndex: 1,
-    resizeMode: 'contain'
-  }
+    resizeMode: 'contain',
+  },
 });
 
 export default RadioPlayer;

@@ -47,7 +47,15 @@
           }
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#FFC655",
+          "androidMode": "default"
+        }
+      ]
     ],
     "owner": "merola",
     "extra": {
