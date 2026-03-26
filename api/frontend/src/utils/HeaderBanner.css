@@ -3,3 +3,17 @@
   color: white;
   text-shadow: 0 0 6px rgba(0,0,0,0.7);
 }
+
+.slick-dots{
+  bottom: 0px !important;
+}
+
+.slick-dots li button:before {
+  opacity: 0.85 !important;
+  color: #ffdd58 !important;
+}
+
+.slick-dots li.slick-active button:before{
+  opacity: 1 !important;
+  color: #ffc655 !important;
+}

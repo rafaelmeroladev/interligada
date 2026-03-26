@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useOutletContext } from 'react-router-dom';
 import axios from '../api/axios';
+import HeaderBanner from '../components/HeaderBanner';
 import Top10 from '../components/Top10';
 import SponsorsBanners from '../components/SponsorsBanners';
 import FloatingRequestButton from '../components/FloatingRequestButton';
@@ -8,11 +9,16 @@ import FloatingRequestButton from '../components/FloatingRequestButton';
 const imageBase = process.env.REACT_APP_API_URL_IMAGE;
 const apiBase = process.env.REACT_APP_API_URL;
 
-function NewsDetails() {
+export default function NewsDetails() {
+  const { setHero } = useOutletContext();
   const { slug } = useParams();
   const [noticia, setNoticia] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setHero(<HeaderBanner />);
+    return () => setHero(null);
+  }, [setHero]);
 
   useEffect(() => {
     axios.get(`${apiBase}/notices/${slug}`)
@@ -20,8 +26,10 @@ function NewsDetails() {
       .catch(err => console.error('Erro ao buscar notícia:', err));
   }, [slug]);
 
-  if (!noticia) return <p className="text-center mt-5">Carregando notícia...</p>;
-  console.log({noticia});
+  if (!noticia) {
+    return <p className="text-center mt-5">Carregando notícia...</p>;
+  }
+
   return (
     <div className="container mt-4">
       <div className="mb-3 d-flex justify-content-between align-items-center">
@@ -31,20 +39,23 @@ function NewsDetails() {
               <Link to="/">Início</Link>
             </li>
             <li className="breadcrumb-item">
-              <Link to="/noticies">Notícias</Link>
+              <Link to="/notices">Notícias</Link>
             </li>
             <li className="breadcrumb-item active" aria-current="page">
-              {noticia?.data.title?.slice(0, 40)}...
+              {noticia?.data?.title?.slice(0, 40)}...
             </li>
           </ol>
         </nav>
 
-        <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(-1)}>
+        <button
+          className="btn btn-outline-secondary btn-sm"
+          onClick={() => navigate(-1)}
+        >
           ← Voltar
         </button>
       </div>
+
       <div className="row">
-        {/* Conteúdo principal */}
         <div className="col-md-8">
           {noticia.data.image && (
             <img
@@ -53,7 +64,8 @@ function NewsDetails() {
               alt={noticia.data.title}
             />
           )}
-          <h2>{noticia.title}</h2>
+
+          <h2>{noticia.data.title}</h2>
           <small className="text-muted">
             Publicado em: {new Date(noticia.data.date_time).toLocaleDateString()}
           </small>
@@ -67,22 +79,21 @@ function NewsDetails() {
           )}
         </div>
 
-        {/* Sidebar: Top 10 */}
         <div className="col-md-4">
           <Top10 />
           <SponsorsBanners slot="medium" />
         </div>
       </div>
-        <div>
-              <FloatingRequestButton />
-        </div>
+
+      <div>
+        <FloatingRequestButton />
+      </div>
+
       <div className="row">
         <div className="col-12 col-md-12">
-            <SponsorsBanners slot="small" />
+          <SponsorsBanners slot="small" />
         </div>
       </div>
     </div>
   );
 }
-
-export default NewsDetails;

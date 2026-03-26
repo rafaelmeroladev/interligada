@@ -1,0 +1,29 @@
+.site-nav {
+  position: sticky;   /* gruda quando atinge o topo */
+  top: 0;
+  z-index: 1030;      /* acima do conteúdo, abaixo de modals */
+  background: #111;   /* fundo sólido pra não “vazar” */
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* desktop: espaçamento confortável */
+@media (min-width: 992px) {
+  .site-nav .links a {
+    text-decoration: none;
+  }
+  .site-nav .links a:hover {
+    color: #fff !important;
+  }
+}
+
+/* mobile: o comportamento continua ok, mas deixa mais compacto */
+@media (max-width: 991.98px) {
+  .site-nav .container {
+    gap: .75rem;
+  }
+  .site-nav .links {
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+}
